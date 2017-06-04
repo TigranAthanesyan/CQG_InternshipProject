@@ -1,7 +1,7 @@
 /**
 * @file    request.cpp
 * @author  Tigran Athanesyan
-* @version 1.0
+* @version 1.2
 */
 
 #include "request.h"
@@ -42,11 +42,9 @@ void Request::Description(std::ostream& output) const
 	output << "    Request types.." << std::endl << std::endl
 		<< "-------------------------------------------------------------------------" << std::endl
 		<< " all that \"condition\" (and \"condition\" ...)" << std::endl
-		<< " \"data type 1\" ( , \"data type 2\" , ...)" << std::endl
 		<< " \"data type\" that \"condition\" (and \"condition\" ...)" << std::endl
 		<< " \"data type 1\" ( , \"data type 2\" , ...) that \"condition\" (and \"condition\"...)" << std::endl
-		<< " quantity of \"data type\"" << std::endl
-		<< " quantity of \"data type\" that \"condition\" (and \"condition\"...)" << std::endl
+		<< " quantity that \"condition\" (and \"condition\"...)" << std::endl
 		<< " close" << std::endl
 		<< "-------------------------------------------------------------------------" << std::endl
 		<< std::endl << "    Condition types.." << std::endl << std::endl
@@ -55,8 +53,6 @@ void Request::Description(std::ostream& output) const
 		<< " \"data type\" is not \"value\" (or \"value\"...)" << std::endl
 		<< " \"data type\" is defined" << std::endl
 		<< " \"data type\" is undefined" << std::endl
-		<< " quantity of \"data type\" is more than \"value\" (or \"value\"...)" << std::endl
-		<< " quantity of \"data type\" is less than \"value\" (or \"value\"...)" << std::endl
 		<< "-------------------------------------------------------------------------" << std::endl << std::endl;
 }
 
@@ -92,16 +88,15 @@ bool Request::IsCorrect()
 		return false;
 	}
 
-	bool dataIsValid = true, quantityOfIsValid = true, allowComma = true;
-	bool thatIsValid = false, commaIsValid = false, valueIsValid = false;
-	bool conditionIsValid = false, andIsValid = false, orIsValid = false;
-	bool isQuantityOf = false, allowQuantityOf = true, isConditionPart = false;
+	bool dataIsValid = true, thatIsValid = false, commaIsValid = false;
+	bool valueIsValid = false, andIsValid = false, orIsValid = false;
+	bool conditionIsValid = false, isConditionPart = false;
 
 	for (auto i = m_phrases.begin(); i != m_phrases.end(); ++i)
 	{
 		switch (i->type)
 		{
-		case all:
+		case _all:
 			if (i != m_phrases.begin()) /// can be only at first of expression
 			{
 				m_errorText = "\"all\" can be only at first of expression";
@@ -112,46 +107,44 @@ bool Request::IsCorrect()
 				m_errorText = "after \"all\" is expected condition";
 				return false;
 			}
-			dataIsValid = quantityOfIsValid = allowComma = allowQuantityOf = false;
-			thatIsValid = true; /// after can be only "that"
+			dataIsValid = false;
+			thatIsValid = true;  /// after can be only "that"
 			break;
 
-		case quantityOf:
-			if (!quantityOfIsValid || !allowQuantityOf)
+		case _quantity:
+			if (i != m_phrases.begin()) /// can be only at first of expression
 			{
-				m_errorText = "\"quantity of\" was used not correctly";
+				m_errorText = "\"quantity\" can be only at first of expression";
 				return false;
 			}
 			if (i + 1 == m_phrases.end()) /// can not be the last word
 			{
-				m_errorText = "after \"quantity of\" is expected any data name";
+				m_errorText = "after \"quantity\" is expected a condition";
 				return false;
 			}
-			quantityOfIsValid = allowComma = allowQuantityOf = false; /// can not be the request like quantity of many data types
-			isQuantityOf = true;
+			dataIsValid = false;
+			thatIsValid = true;  /// after can be only "that"
 			break;
 
-		case data:
+		case _data:
 			if (!dataIsValid)
 			{
 				m_errorText = "\"" + i->word + "\" was used not correctly";
+				return false;
+			}
+			if (i + 1 == m_phrases.end()) /// can not be the last word
+			{
+				m_errorText = "after \"" + i->word + "\" is expected a condition";
 				return false;
 			}
 			dataIsValid = false;
 			if (!isConditionPart) ///  before condition part
 				thatIsValid = commaIsValid = true; ///  after can be "that" or comma
 			else ///  condition part 
-			{
-				if (i + 1 == m_phrases.end()) /// can not be the last word
-				{
-					m_errorText = "after \"" + i->word + "\" is expected a continuation of condition";
-					return false;
-				}
 				conditionIsValid = true; /// after can be only condition
-			}
 			break;
 
-		case that:
+		case _that:
 			if (!thatIsValid)
 			{
 				m_errorText = "\"that\" was used not correctly";
@@ -162,16 +155,11 @@ bool Request::IsCorrect()
 				m_errorText = "after \"that\" is expected a condition";
 				return false;
 			}
-			thatIsValid = commaIsValid = isQuantityOf = false;
-			isConditionPart = dataIsValid = quantityOfIsValid = true; ///  after can be data or "quantity of"
+			thatIsValid = commaIsValid = false;
+			isConditionPart = dataIsValid = true; ///  after can be only data
 			break;
 
-		case comma:
-			if (!allowComma)
-			{
-				m_errorText = "when requested \"quantity of\" use of comma is not allowed";
-				return false;
-			}
+		case _comma:
 			if (!commaIsValid)
 			{
 				m_errorText =  "comma was used not correctly";
@@ -182,26 +170,21 @@ bool Request::IsCorrect()
 				m_errorText = "after comma is expected a data name";
 				return false;
 			}
-			thatIsValid = commaIsValid = allowQuantityOf = false;
+			thatIsValid = commaIsValid = false;
 			dataIsValid = true; ///  after can be only data
 			break;
 
-		case isDefined_isUndefined:
+		case _isDefined_isUndefined:
 			if (!conditionIsValid)
 			{
 				m_errorText = "\"" + i->word + "\" was used not correctly";
 				return false;
 			}
-			if (isQuantityOf)
-			{
-				m_errorText = "when requested \"quantity of\" use of \"" + i->word + "\" is not allowed";
-				return false;
-			}
-			conditionIsValid = isQuantityOf = false;
+			conditionIsValid = false;
 			andIsValid = true; ///  after can be only and
 			break;
 
-		case is_isNot:
+		case _is_isNot:
 			if (!conditionIsValid)
 			{
 				m_errorText = "\"" + i->word + "\" was used not correctly";
@@ -212,61 +195,41 @@ bool Request::IsCorrect()
 				m_errorText = "after \"" + i->word + "\" is expected a value";
 				return false;
 			}
-			conditionIsValid = isQuantityOf = false;
+			conditionIsValid = false;
 			valueIsValid = true; ///  after can be only value
 			break;
 
-		case isMoreThan_isLessThan:
-			if (!conditionIsValid)
-			{
-				m_errorText = "\"" + i->word + "\" was used not correctly";
-				return false;
-			}
-			if (!isQuantityOf)
-			{
-				m_errorText = "when is not requested \"quantity of\" use of \"" + i->word + "\" is not allowed";
-				return false;
-			}
-			if (i + 1 == m_phrases.end()) /// can not be the last word
-			{
-				m_errorText = "after \"" + i->word + "\" is expected a value";
-				return false;
-			}
-			conditionIsValid = isQuantityOf = false;
-			valueIsValid = true; /// after can be only value
-			break;
-
-		case and_:
+		case _and:
 			if (!andIsValid)
 			{
-				m_errorText = "\"" + i->word + "\" was used not correctly";
+				m_errorText = "\"and\" was used not correctly";
 				return false;
 			}
 			if (i + 1 == m_phrases.end()) /// can not be the last word
 			{
-				m_errorText = "after \"" + i->word + "\" is expected a condition";
+				m_errorText = "after \"and\" is expected a condition";
 				return false;
 			}
 			andIsValid = orIsValid = false;
-			dataIsValid = quantityOfIsValid = true; /// after can be data or quantity of
+			dataIsValid = true; /// after can be only data
 			break;
 
-		case or_:
+		case _or:
 			if (!orIsValid)
 			{
-				m_errorText = "\"" + i->word + "\" was used not correctly";
+				m_errorText = "\"or\" was used not correctly";
 				return false;
 			}
 			if (i + 1 == m_phrases.end()) /// can not be the last word
 			{
-				m_errorText = "after \"" + i->word + "\" is expected a condition";
+				m_errorText = "after \"or\" is expected a condition";
 				return false;
 			}
 			andIsValid = orIsValid = false;
 			valueIsValid = true; /// after can be only value
 			break;
 
-		case close:
+		case _close:
 			if (m_phrases.size() != 1) ///  can be only alone
 			{
 				m_errorText = "use of \"close\" is allowed only alone";
@@ -274,33 +237,23 @@ bool Request::IsCorrect()
 			}
 			break;
 
-		case value:
+		case _value:
 			if (!valueIsValid)
 			{
 				m_errorText = "\"" + i->word + "\" was used not correctly";
 				return false;
 			}
-			valueIsValid = isQuantityOf = false;
+			valueIsValid = false;
 			andIsValid = orIsValid = true; ///  after can be only and/or
 
-			if (((i - 2)->word == "work e-mail" || (i - 2)->word == "home e-mail") && (i - 1)->type == is_isNot && !isEmail(i->word))
+			if (((i - 2)->word == "work e-mail" || (i - 2)->word == "home e-mail") && !isEmail(i->word))
 			{
 				m_errorText = "\"" + i->word + "\" is not correct e-mail";
 				return false;
 			}
-			if ((i - 2)->word == "phone" && (i - 1)->type == is_isNot && !isPhoneNumber(i->word))
+			if ((i - 2)->word == "phone" && !isPhoneNumber(i->word))
 			{
 				m_errorText = "\"" + i->word + "\" is not correct phone number";
-				return false;
-			}
-			if ((i - 1)->type == isMoreThan_isLessThan && !isNumber(i->word))
-			{
-				m_errorText = "\"" + i->word + "\" is not correct number";
-				return false;
-			}
-			if ((i - 3)->type == quantityOf && (i - 1)->type == is_isNot && !isNumber(i->word))
-			{
-				m_errorText = "\"" + i->word + "\" is not correct number";
 				return false;
 			}
 			break;
@@ -311,7 +264,7 @@ bool Request::IsCorrect()
 
 bool Request::Close() const
 {
-	return m_phrases.size() == 1 && m_phrases.back().type == close;
+	return m_phrases.size() == 1 && m_phrases.back().type == _close;
 }
 
 std::string Request::ErrorText() const
@@ -329,42 +282,41 @@ std::string Request::GetEncryptedText() const
 	};
 
 	std::string encryptedRequest;
-	for (int i = 0; i < m_phrases.size(); ++i)
+	for (size_t i = 0; i < m_phrases.size(); ++i)
 	{
 		switch (m_phrases[i].type)
 		{
-		case all:
-			encryptedRequest += std::to_string(all) + ',' + std::to_string(none);
+		case _all:
+			encryptedRequest += std::to_string(_all) + ',' + std::to_string(none);
 			break;
-		case quantityOf:
-			encryptedRequest += std::to_string(quantityOf) + ',' + std::to_string(none);
+		case _quantity:
+			encryptedRequest += std::to_string(_quantity) + ',' + std::to_string(none);
 			break;
-		case close:
-			encryptedRequest += std::to_string(close) + ',' + std::to_string(none);
+		case _close:
+			encryptedRequest += std::to_string(_close) + ',' + std::to_string(none);
 			break;
-		case that:
-			encryptedRequest += std::to_string(that) + ',' + std::to_string(none);
+		case _that:
+			encryptedRequest += std::to_string(_that) + ',' + std::to_string(none);
 			break;
-		case comma:
-			encryptedRequest += std::to_string(comma) + ',' + std::to_string(none);
+		case _comma:
+			encryptedRequest += std::to_string(_comma) + ',' + std::to_string(none);
 			break;
-		case is_isNot:
-			encryptedRequest += std::to_string(is_isNot) + ',' + ((m_phrases[i].word == "is") ? std::to_string(positive) : std::to_string(negative));
+		case _is_isNot:
+			encryptedRequest += std::to_string(_is_isNot) + ',' + 
+				((m_phrases[i].word == "is") ? std::to_string(positive) : std::to_string(negative));
 			break;
-		case isDefined_isUndefined:
-			encryptedRequest += std::to_string(isDefined_isUndefined) + ',' + ((m_phrases[i].word == "is defined") ? std::to_string(positive) : std::to_string(negative));
+		case _isDefined_isUndefined:
+			encryptedRequest += std::to_string(_isDefined_isUndefined) + ',' + 
+				((m_phrases[i].word == "is defined") ? std::to_string(positive) : std::to_string(negative));
 			break;
-		case isMoreThan_isLessThan:
-			encryptedRequest += std::to_string(isMoreThan_isLessThan) + ',' + ((m_phrases[i].word == "is more than") ? std::to_string(positive) : std::to_string(negative));
+		case _and:
+			encryptedRequest += std::to_string(_and) + ',' + std::to_string(none);
 			break;
-		case and_:
-			encryptedRequest += std::to_string(and_) + ',' + std::to_string(none);
+		case _or:
+			encryptedRequest += std::to_string(_or) + ',' + std::to_string(none);
 			break;
-		case or_:
-			encryptedRequest += std::to_string(or_) + ',' + std::to_string(none);
-			break;
-		case data:
-			encryptedRequest += std::to_string(data) + ',';
+		case _data:
+			encryptedRequest += std::to_string(_data) + ',';
 			int indicator;
 			indicator = 0;
 			for (auto it = m_dataSet.begin(); it != m_dataSet.end(); ++it, ++indicator)
@@ -376,8 +328,8 @@ std::string Request::GetEncryptedText() const
 				}
 			}
 			break;
-		case value:
-			encryptedRequest += std::to_string(value) + ',' + m_phrases[i].word;
+		case _value:
+			encryptedRequest += std::to_string(_value) + ',' + m_phrases[i].word;
 			break;
 		}
 
@@ -395,7 +347,7 @@ bool Request::isData(const std::string& word) const
 
 bool Request::isNumber(const std::string& word) const
 {
-	for (int i = 0; i < word.size(); ++i)
+	for (size_t i = 0; i < word.size(); ++i)
 	{
 		if (!isdigit(word[i]))
 			return false;
@@ -429,7 +381,7 @@ bool Request::isPhoneNumber(const std::string& word) const
 		return false;
 
 	bool spaceIsValid = true;
-	for (int i = 1; i < word.size(); ++i)
+	for (size_t i = 1; i < word.size(); ++i)
 	{
 		if (isdigit(word[i]))
 		{
@@ -449,7 +401,7 @@ bool Request::isPhoneNumber(const std::string& word) const
 void Request::splitToWords(const std::string& text, std::vector<std::string>& tempArray) const
 {
 	std::string temp = "";
-	for (int i = 0; i < text.size(); ++i)
+	for (size_t i = 0; i < text.size(); ++i)
 	{
 		if (text[i] == ' ' || text[i] == ',')
 		{
@@ -473,54 +425,41 @@ void Request::getPhrases(const std::vector<std::string>& tempArray)
 	for (auto i = tempArray.begin(); i != tempArray.end(); ++i)
 	{
 		if (*i == "all")
-			m_phrases.push_back(TypedWord(*i, all));
+			m_phrases.push_back(TypedWord(*i, _all));
+		else if (*i == "quantity")
+			m_phrases.push_back(TypedWord(*i, _quantity));
 		else if (*i == "that")
-			m_phrases.push_back(TypedWord(*i, that));
+			m_phrases.push_back(TypedWord(*i, _that));
 		else if (*i == "close")
-			m_phrases.push_back(TypedWord(*i, close));
+			m_phrases.push_back(TypedWord(*i, _close));
 		else if (*i == "and")
-			m_phrases.push_back(TypedWord(*i, and_));
+			m_phrases.push_back(TypedWord(*i, _and));
 		else if (*i == "or")
-			m_phrases.push_back(TypedWord(*i, or_));
+			m_phrases.push_back(TypedWord(*i, _or));
 		else if (*i == ",")
-			m_phrases.push_back(TypedWord(*i, comma));
+			m_phrases.push_back(TypedWord(*i, _comma));
 		else if (*i == "is")
-			m_phrases.push_back(TypedWord(*i, is_isNot));
+			m_phrases.push_back(TypedWord(*i, _is_isNot));
 		else if (*i == "not" && !m_phrases.empty() && m_phrases.back().word == "is")
 			m_phrases.back().word += ' ' + *i;
 		else if ((*i == "defined" || *i == "undefined") && !m_phrases.empty() && m_phrases.back().word == "is")
 		{
 			m_phrases.back().word += ' ' + *i;
-			m_phrases.back().type = isDefined_isUndefined;
+			m_phrases.back().type = _isDefined_isUndefined;
 		}
-		else if ((*i == "more" || *i == "less") && !m_phrases.empty() && m_phrases.back().word == "is")
-		{
-			m_phrases.back().word += ' ' + *i;
-			m_phrases.back().type = value;
-		}
-		else if ((*i == "than") && !m_phrases.empty() && (m_phrases.back().word == "is more" || m_phrases.back().word == "is less"))
-		{
-			m_phrases.back().word += ' ' + *i;
-			m_phrases.back().type = isMoreThan_isLessThan;
-		}
-		else if (*i == "of" && !m_phrases.empty() && m_phrases.back().word == "quantity")
-		{
-			m_phrases.back().word += ' ' + *i;
-			m_phrases.back().type = quantityOf;
-		}
-		else if (!m_phrases.empty() && (m_phrases.back().type == value || m_phrases.back().type == data))
+		else if (!m_phrases.empty() && (m_phrases.back().type == _value || m_phrases.back().type == _data))
 		{
 			m_phrases.back().word += ' ' + *i;
 			if (isData(m_phrases.back().word))
-				m_phrases.back().type = data;
+				m_phrases.back().type = _data;
 			else
-				m_phrases.back().type = value;
+				m_phrases.back().type = _value;
 		}
 		else
 		{
-			m_phrases.push_back(TypedWord(*i, value));
+			m_phrases.push_back(TypedWord(*i, _value));
 			if (isData(*i))
-				m_phrases.back().type = data;
+				m_phrases.back().type = _data;
 		}
 	}
 }

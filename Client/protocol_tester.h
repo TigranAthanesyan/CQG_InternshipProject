@@ -1,7 +1,7 @@
 /**
  * @file     protocol_tester.h
  * @authors  Tigran Athanesyan, Anna Vardzelyan
- * @version  1.0
+ * @version  1.2
  */
 
 #include <string>
@@ -17,7 +17,7 @@
 namespace Tester
 {
 
-#define TYPE_SIZE 13
+#define TYPE_SIZE 11
 
 	/**
 	 * To identify the types of generated phrases
@@ -25,19 +25,17 @@ namespace Tester
 	 */
 	enum WordType
 	{
-		all,                     /// Keyword "all"
-		quantityOf,              /// Keyword "quantity of"
-		close,                   /// Keyword "close"
-		data,                    /// All data names
-		that,                    /// Keyword "that"
-		comma,                   /// Keyword ","
-		is_isNot,                /// Keywords "is" and "is not"
-		isDefined_isUndefined,   /// Keywords "is defined" and "is undefined"
-		isMoreThan_isLessThan,   /// Keywords "is more than" and "is less than"
-		and_,                    /// Keyword "and"
-		or_,                     /// Keyword "or"
-		value,                   /// All values of datas
-		end                      /// End of request
+		_all,                     /// Keyword "all"
+		_quantity,                /// Keyword "quantity"
+		_data,                    /// All data names
+		_that,                    /// Keyword "that"
+		_comma,                   /// Keyword ","
+		_is_isNot,                /// Keywords "is" and "is not"
+		_isDefined_isUndefined,   /// Keywords "is defined" and "is undefined"
+		_and,                     /// Keyword "and"
+		_or,                      /// Keyword "or"
+		_value,                   /// All values of datas
+		_end                      /// End of request
 	};
 
 	/**
@@ -52,7 +50,6 @@ namespace Tester
 		e_mail,   /// Corresponding data types: "home e-mail", "work e-mail"
 		mr_mrs,   /// Corresponding data type:  "mr. / mrs."
 		phone,    /// Corresponding data type:  "phone"
-		number,   /// Corresponding request type: " *** that quantity of (any data) is/is not/is more/less than (any value) "
 		undefined /// In general cases
 	};
 
@@ -66,17 +63,16 @@ namespace Tester
 	{
 	public:
 		/**
-		 * Constructor and function Reset
+		 * Constructor
 		 *
 		 * Start state of the bitset
 		 * Resolve the first possible word types of the request
-		 * "all", "quantity of", "close", "data"
+		 * "all", "quantity", "data"
 		 * 
 		 * Call private function resetIndexVector
 		 * to turn the index vector to identic state as bitset
 		 */
 		ValidWordTypeMaker();
-		void Reset();
 
 		/**
 		 * Function GetNextType
@@ -98,10 +94,6 @@ namespace Tester
 		std::bitset<TYPE_SIZE> m_bitSet; /// Contains bool values to show valid word types
 		std::vector<int> m_indexVector;  /// Contains the numbers of bitset which are true
 		bool m_isConditionPart = false;  /// Turns to true after keyword "that"
-		bool m_canBeMoreLess = false;    /// Turns to true after keyword "quantity of"
-		bool m_allowComma = true;        /// Turns to false after keyword "quantity of"
-		bool m_allowQuantityOf = true;   /// Turns to false after keyword "all" and comma
-		bool m_allowOr = true;           /// Turns to false after keywords "is more than" and "is less than"
 	};
 
 	/**
@@ -126,11 +118,10 @@ namespace Tester
 
 		/**
 		 * Helper functions for generating valid
-		 * data, phone number, number, e-mail and any word
+		 * data, phone number, e-mail and any word
 		 */
 		std::string generateData() const;
 		std::string generatePhoneNumber(const unsigned = 8) const;
-		std::string generateNumber(const int, const int) const;
 		std::string generateMail() const;
 		std::string generateWord(const size_t, const bool = false) const;
 

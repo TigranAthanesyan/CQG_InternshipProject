@@ -1,6 +1,7 @@
 #include <functional>
 #include <sstream>
 #include "client_connector.h"
+#include "sql_converter.h"
 
 namespace
 {
@@ -42,12 +43,7 @@ std::string Parsing(std::vector<cis::TypedWord>& phrases)
 	return std::string();
 }
 
-std::string GetSQLCode(const std::string& request)
-{
-	std::string sqlCode{ "select " };
-	//////////////////////////////////////
-	return sqlCode;
-}
+
 }
 
 namespace cis
@@ -113,7 +109,7 @@ void ClientConnector::SocketFunction(SOCKET& i_socket)
 
 		auto decrypted = decrypt(std::string(buffer));
 		std::string parsedText = Parsing(decrypted);
-		std::string sqlCode = GetSQLCode(parsedText);
+		std::string sqlCode = GetSQLCode(d);
 		m_mutex.lock();
 		std::string answer = m_connectorPtr->SQLRequest(sqlCode);
 		m_mutex.unlock();

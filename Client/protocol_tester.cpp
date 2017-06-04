@@ -1,7 +1,7 @@
 /**
  * @file     protocol_tester.cpp
  * @authors  Tigran Athanesyan, Anna Vardzelyan
- * @version  1.0
+ * @version  1.2
  */
 
 #include "protocol_tester.h"
@@ -51,23 +51,15 @@ namespace Tester
 	}
 
 	ValidWordTypeMaker::ValidWordTypeMaker()
-		: m_bitSet(std::bitset<TYPE_SIZE>(15)) /// 15 - 000000001111
+		: m_bitSet(std::bitset<TYPE_SIZE>(7)) /// 7 - 00000000111
 	{
-		resetIndexVector();
-	}
-
-	void ValidWordTypeMaker::Reset()
-	{
-		m_bitSet = std::bitset<TYPE_SIZE>(15);
-		m_isConditionPart = m_canBeMoreLess = false;
-		m_allowComma = true;
 		resetIndexVector();
 	}
 
 	WordType ValidWordTypeMaker::GetNextType()
 	{
 		if (!m_indexVector.size())
-			return end;
+			return _end;
 
 		int nextIndex = RandomNumber(0, m_indexVector.size() - 1);
 		WordType nextType = static_cast<WordType>(m_indexVector[nextIndex]);
@@ -75,84 +67,53 @@ namespace Tester
 		/// Before returning the type we need to change some settings about which type can be next
 		switch (nextType)
 		{
-		case all:   /// True types: all, quantityOf, close, data
-			m_bitSet[all] = m_bitSet[quantityOf] = m_bitSet[close] = m_bitSet[data] = m_allowQuantityOf = false;
-			m_bitSet[that] = true;
+		case _all: case _quantity:  /// True types: all, quantity, data
+			m_bitSet[_all] = m_bitSet[_quantity] = m_bitSet[_data] = false;
+			m_bitSet[_that] = true;
 			break;
-		case quantityOf:
-			if (m_isConditionPart)   /// True types: quantityOf, data
+		case _data:
+			m_bitSet[_data] = false;
+			if (m_isConditionPart)   /// True types: data
 			{
-				m_bitSet[quantityOf] = false;
-				m_canBeMoreLess = true;
+				m_bitSet[_is_isNot] = m_bitSet[_isDefined_isUndefined] = true;
 			}
-			else   /// True types: all, quantityOf, close, data
+			else   /// True types: all, quantity, data
 			{
-				m_bitSet[all] = m_bitSet[quantityOf] = m_bitSet[close] = m_allowComma = m_allowQuantityOf = false;
-			}
-			break;
-		case close:  /// True types: all, quantityOf, close, data
-			m_bitSet[all] = m_bitSet[quantityOf] = m_bitSet[close] = m_bitSet[data] = false;
-			m_bitSet[end] = true;
-			break;
-		case data:
-			if (m_isConditionPart)   /// True types: data, quantityOf
-			{
-				m_bitSet[data] = m_bitSet[quantityOf] = false;
-				if (m_canBeMoreLess)
-				{
-					m_bitSet[is_isNot] = m_bitSet[isMoreThan_isLessThan] = true;
-					m_canBeMoreLess = false;
-				}
-				else
-					m_bitSet[is_isNot] = m_bitSet[isDefined_isUndefined] = true;
-			}
-			else   /// True types: all, quantityOf, close, data
-			{
-				m_bitSet[all] = m_bitSet[quantityOf] = m_bitSet[close] = m_bitSet[data] = false;
-				m_bitSet[that] = m_bitSet[end] = true;
-				m_bitSet[comma] = m_allowComma;
+				m_bitSet[_all] = m_bitSet[_quantity] = m_bitSet[_data] = false;
+				m_bitSet[_that] = m_bitSet[_comma] = true;
 			}
 			break;
-		case that:  /// True types: that, comma, end
-			m_bitSet[that] = m_bitSet[comma] = m_bitSet[end] = false;
-			m_bitSet[data] = m_isConditionPart = true;
-			if (m_allowQuantityOf)
-				m_bitSet[quantityOf] = true;
+		case _that:   /// True types: that, comma
+			m_bitSet[_that] = m_bitSet[_comma] = false;
+			m_bitSet[_data] = m_isConditionPart = true;
 			break;
-		case comma:    /// True types: comma, that, end
-			m_bitSet[comma] = m_bitSet[that] = m_bitSet[end] = m_allowQuantityOf = false;
-			m_bitSet[data] = true;
+		case _comma:    /// True types: comma, that
+			m_bitSet[_comma] = m_bitSet[_that] = false;
+			m_bitSet[_data] = true;
 			break;
-		case is_isNot:  /// True types: is_isNot, isDefined_isUndefined, isMoreThan_isLessThan
-			m_bitSet[is_isNot] = m_bitSet[isDefined_isUndefined] = m_bitSet[isMoreThan_isLessThan] = false;
-			m_bitSet[value] = m_allowOr = true;
+		case _is_isNot:  /// True types: is_isNot, isDefined_isUndefined
+			m_bitSet[_is_isNot] = m_bitSet[_isDefined_isUndefined] = false;
+			m_bitSet[_value] = true;
 			break;
-		case isDefined_isUndefined:   /// True types: is_isNot, isDefined_isUndefined
-			m_bitSet[is_isNot] = m_bitSet[isDefined_isUndefined] = false;
-			m_bitSet[and_] = m_bitSet[end] = true;
+		case _isDefined_isUndefined:   /// True types: is_isNot, isDefined_isUndefined
+			m_bitSet[_is_isNot] = m_bitSet[_isDefined_isUndefined] = false;
+			m_bitSet[_and] = m_bitSet[_end] = true;
 			break;
-		case isMoreThan_isLessThan:   /// True types: is_isNot, isMoreThan_isLessThan
-			m_bitSet[is_isNot] = m_bitSet[isMoreThan_isLessThan] = m_allowOr = false;
-			m_bitSet[value] = true;
+		case _and:   /// True types: and, or, end
+			m_bitSet[_and] = m_bitSet[_or] = m_bitSet[_end] = false;
+			m_bitSet[_data] = true;
 			break;
-		case and_:   /// True types: and, or, end
-			m_bitSet[and_] = m_bitSet[or_] = m_bitSet[end] = false;
-			m_bitSet[data] = true;
-			if (m_allowQuantityOf)
-				m_bitSet[quantityOf] = true;
+		case _or:   /// True types: and, or, end
+			m_bitSet[_and] = m_bitSet[_or] = m_bitSet[_end] = false;
+			m_bitSet[_value] = true;
 			break;
-		case or_:   /// True types: and, or, end
-			m_bitSet[and_] = m_bitSet[or_] = m_bitSet[end] = false;
-			m_bitSet[value] = true;
+		case _value:   /// True types: value
+			m_bitSet[_value] = false;
+			m_bitSet[_and] = m_bitSet[_or] = m_bitSet[_end] = true;
 			break;
-		case value:   /// True types: value
-			m_bitSet[value] = false;
-			m_bitSet[and_] = m_bitSet[end] = true;
-			if (m_allowOr)
-				m_bitSet[or_] = true;
-			break;
-		case end:  /// True types: that, comma, end, and_or
-			m_bitSet[that] = m_bitSet[comma] = m_bitSet[end] = m_bitSet[and_] = m_bitSet[or_] = false;
+		case _end:  /// True types: and, or, end
+			m_bitSet[_and] = m_bitSet[_or] = m_bitSet[_end] = m_isConditionPart = false;
+			m_bitSet[_all] = m_bitSet[_quantity] = m_bitSet[_data] = true;
 			break;
 		}
 		resetIndexVector();
@@ -174,27 +135,23 @@ namespace Tester
 		std::string request;
 		WordType nextType = m_typeMaker.GetNextType(); /// Getting the next type
 		ValueType nextValueType = undefined;           /// Will be changed after any data
+		bool isConditionPart = false;                  /// Will be changed after "that"
 
-		while (nextType != end)
+		while (nextType != _end)
 		{
 			switch (nextType)
 			{
-			case all:
+			case _all:
 				request += "all ";
 				break;
-			case quantityOf:
-				request += "quantity of ";
-				nextValueType = number; /// Only in this case the following value will be number
+			case _quantity:
+				request += "quantity ";
 				break;
-			case close:
-				request += "close ";
-				break;
-			case data:
+			case _data:
 			{
 				std::string data = generateData();
 				request += data + ' ';
-				/// We need to set the value type, if it is not a quantity of something
-				if (nextValueType != number)
+				if (isConditionPart)   /// We need to set the value type
 				{
 					if (data == "last name" || data == "first name" || data == "city" || data == "state" || data == "country")
 						nextValueType = name;
@@ -209,30 +166,25 @@ namespace Tester
 				}
 				break;
 			}
-			case that:
+			case _that:
 				request += "that ";
-				nextValueType = undefined;
 				break;
-			case comma:
+			case _comma:
 				request += ", ";
 				break;
-			case is_isNot:
+			case _is_isNot:
 				request += RandomNumber(0, 1) ? "is " : "is not ";
 				break;
-			case isDefined_isUndefined:
+			case _isDefined_isUndefined:
 				request += RandomNumber(0, 1) ? "is defined " : "is undefined ";
-				nextValueType = undefined;
 				break;
-			case isMoreThan_isLessThan:
-				request += RandomNumber(0, 1) ? "is more than " : "is less than ";
-				break;
-			case and_:
+			case _and:
 				request += "and ";
 				break;
-			case or_:
+			case _or:
 				request += "or ";
 				break;
-			case value:
+			case _value:
 				switch (nextValueType)
 				{
 				case name:
@@ -246,9 +198,6 @@ namespace Tester
 					break;
 				case phone:
 					request += generatePhoneNumber() + ' ';
-					break;
-				case number:
-					request += generateNumber(1, 20) + ' ';
 					break;
 				case e_mail:
 					if (forExample)
@@ -267,7 +216,6 @@ namespace Tester
 			}
 			nextType = m_typeMaker.GetNextType();
 		}
-		m_typeMaker.Reset();
 		return request;
 	}
 
@@ -280,13 +228,9 @@ namespace Tester
 	std::string RequestGenerator::generatePhoneNumber(const unsigned numberQuantity) const
 	{
 		int areaCode = RandomNumber(100, 999);
-		int phoneNumber = RandomNumber(pow(10, numberQuantity - 1), pow(10, numberQuantity) - 1);
+		int phoneNumber = 
+			RandomNumber(static_cast<int>(pow(10, numberQuantity - 1)), static_cast<int>(pow(10, numberQuantity) - 1));
 		return "+" + std::to_string(areaCode) + " " + std::to_string(phoneNumber);
-	}
-
-	std::string RequestGenerator::generateNumber(const int min, const int max) const
-	{
-		return std::to_string(RandomNumber(min, max));
 	}
 
 	std::string RequestGenerator::generateMail() const
@@ -305,7 +249,7 @@ namespace Tester
 	std::string RequestGenerator::generateWord(const size_t size, const bool startWithCapital) const // returns random word
 	{
 		std::string word;
-		for (int i = 0; i < size; ++i)
+		for (size_t i = 0; i < size; ++i)
 			word += RandomNumber(0, 25) + 'a';
 		if (startWithCapital)
 			word[0] = toupper(word[0]);

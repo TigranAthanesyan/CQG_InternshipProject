@@ -1,7 +1,7 @@
 /**
  * @file    request.h
  * @author  Tigran Athanesyan
- * @version 1.0
+ * @version 1.2
  */
 
 #include <string>
@@ -20,18 +20,17 @@
  */
 enum WordType
 {
-	all,                     /// Keyword "all"
-	quantityOf,              /// Keyword "quantity of"
-	close,                   /// Keyword "close"
-	that,                    /// Keyword "that"
-	comma,                   /// Keyword ","
-	is_isNot,                /// Keywords "is" and "is not"
-	isDefined_isUndefined,   /// Keywords "is defined" and "is undefined"
-	isMoreThan_isLessThan,   /// Keywords "is more than" and "is less than"
-	and_,                    /// Keyword "and"
-	or_,                     /// Keyword "or"
-	data,                    /// All data names
-	value                    /// All values of datas
+	_all,                     /// Keyword "all"
+	_quantity,                /// Keyword "quantity"
+	_close,                   /// Keyword "close"
+	_that,                    /// Keyword "that"
+	_comma,                   /// Keyword ","
+	_is_isNot,                /// Keywords "is" and "is not"
+	_isDefined_isUndefined,   /// Keywords "is defined" and "is undefined"
+	_and,                     /// Keyword "and"
+	_or,                      /// Keyword "or"
+	_data,                    /// All data names
+	_value                    /// All values of datas
 };
 
 /**
@@ -78,8 +77,8 @@ public:
 			output << i->word;
 			for (size_t count = i->word.size(); count < size; ++count)
 				output << '-';
-			output << "------ " << (i->type == data ? "data" :
-				(i->type == value ? "value" : "keyword")) << std::endl;
+			output << "------ " << (i->type == _data ? "data" :
+				(i->type == _value ? "value" : "keyword")) << std::endl;
 		}
 		return output;
 	}

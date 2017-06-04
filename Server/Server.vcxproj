@@ -147,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client_connector.h" />
+    <ClInclude Include="sql_converter.h" />
     <ClInclude Include="db_connector.h" />
     <ClInclude Include="network.h" />
   </ItemGroup>
