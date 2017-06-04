@@ -17,7 +17,7 @@
 namespace Tester
 {
 
-#define TYPE_SIZE 12
+#define TYPE_SIZE 13
 
 	/**
 	 * To identify the types of generated phrases
@@ -34,7 +34,8 @@ namespace Tester
 		is_isNot,                /// Keywords "is" and "is not"
 		isDefined_isUndefined,   /// Keywords "is defined" and "is undefined"
 		isMoreThan_isLessThan,   /// Keywords "is more than" and "is less than"
-		and_or,                  /// Keywords "and" and "or"
+		and_,                    /// Keyword "and"
+		or_,                     /// Keyword "or"
 		value,                   /// All values of datas
 		end                      /// End of request
 	};
@@ -99,6 +100,8 @@ namespace Tester
 		bool m_isConditionPart = false;  /// Turns to true after keyword "that"
 		bool m_canBeMoreLess = false;    /// Turns to true after keyword "quantity of"
 		bool m_allowComma = true;        /// Turns to false after keyword "quantity of"
+		bool m_allowQuantityOf = true;   /// Turns to false after keyword "all" and comma
+		bool m_allowOr = true;           /// Turns to false after keywords "is more than" and "is less than"
 	};
 
 	/**
@@ -117,7 +120,7 @@ namespace Tester
 		 * Calls function GetNextType of typeMaker until it is not "end"
 		 * and using that types generate a correct request text
 		 */
-		std::string GenerateRequest();
+		std::string GenerateRequest(bool = true);
 
 	private:
 

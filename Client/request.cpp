@@ -9,56 +9,54 @@
 /// Function for initializing the data set
 std::set<std::string> MakeDataSet()
 {
-	std::set<std::string> dataSet;
-	dataSet.insert("last name");
-	dataSet.insert("first name");
-	dataSet.insert("mr. / mrs.");
-	dataSet.insert("acct. name");
-	dataSet.insert("phone");
-	dataSet.insert("home e-mail");
-	dataSet.insert("type");
-	dataSet.insert("industry segment");
-	dataSet.insert("work e-mail");
-	dataSet.insert("address");
-	dataSet.insert("city");
-	dataSet.insert("state");
-	dataSet.insert("postal code");
-	dataSet.insert("country");
-	dataSet.insert("last contacted date");
-	dataSet.insert("referral type");
-	dataSet.insert("referral detail");
-	dataSet.insert("sales rep.");
-	dataSet.insert("sales rep. login");
-	dataSet.insert("company office");
-	dataSet.insert("trs admin");
-	dataSet.insert("auth to trade");
-	dataSet.insert("job title");
-	dataSet.insert("contact id");
-	return std::move(dataSet);
+	std::set<std::string> m_dataSet;
+	m_dataSet.insert("last name");
+	m_dataSet.insert("first name");
+	m_dataSet.insert("mr. / mrs.");
+	m_dataSet.insert("acct. name");
+	m_dataSet.insert("phone");
+	m_dataSet.insert("home e-mail");
+	m_dataSet.insert("type");
+	m_dataSet.insert("industry segment");
+	m_dataSet.insert("work e-mail");
+	m_dataSet.insert("address");
+	m_dataSet.insert("city");
+	m_dataSet.insert("state");
+	m_dataSet.insert("postal code");
+	m_dataSet.insert("country");
+	m_dataSet.insert("last contacted date");
+	m_dataSet.insert("referral type");
+	m_dataSet.insert("referral detail");
+	m_dataSet.insert("sales rep.");
+	m_dataSet.insert("sales rep. login");
+	m_dataSet.insert("company office");
+	m_dataSet.insert("trs admin");
+	m_dataSet.insert("auth to trade");
+	m_dataSet.insert("job title");
+	m_dataSet.insert("contact id");
+	return std::move(m_dataSet);
 }
 
 void Request::Description(std::ostream& output) const
 {
 	output << "    Request types.." << std::endl << std::endl
 		<< "-------------------------------------------------------------------------" << std::endl
-		<< " all" << std::endl
-		<< " all that \"condition\" (and/or \"condition\" ...)"
-		<< " \"data type\"" << std::endl
-		<< " \"data type 1\" , \"data type 2\" ..." << std::endl
-		<< " \"data type\" that \"condition\" (and/or \"condition\" ...)" << std::endl
-		<< " \"data type 1\" , \"data type 2\" ... that \"condition\" (and/or \"condition\"...)" << std::endl
+		<< " all that \"condition\" (and \"condition\" ...)" << std::endl
+		<< " \"data type 1\" ( , \"data type 2\" , ...)" << std::endl
+		<< " \"data type\" that \"condition\" (and \"condition\" ...)" << std::endl
+		<< " \"data type 1\" ( , \"data type 2\" , ...) that \"condition\" (and \"condition\"...)" << std::endl
 		<< " quantity of \"data type\"" << std::endl
-		<< " quantity of \"data type\" that \"condition\" (and/or \"condition\"...)" << std::endl
+		<< " quantity of \"data type\" that \"condition\" (and \"condition\"...)" << std::endl
 		<< " close" << std::endl
 		<< "-------------------------------------------------------------------------" << std::endl
 		<< std::endl << "    Condition types.." << std::endl << std::endl
 		<< "-------------------------------------------------------------------------" << std::endl
-		<< " \"data type\" is \"value\"" << std::endl
-		<< " \"data type\" is not \"value\"" << std::endl
+		<< " \"data type\" is \"value\" (or \"value\"...)" << std::endl
+		<< " \"data type\" is not \"value\" (or \"value\"...)" << std::endl
 		<< " \"data type\" is defined" << std::endl
 		<< " \"data type\" is undefined" << std::endl
-		<< " quantity of \"data type\" is more than \"value\"" << std::endl
-		<< " quantity of \"data type\" is less than \"value\"" << std::endl
+		<< " quantity of \"data type\" is more than \"value\" (or \"value\"...)" << std::endl
+		<< " quantity of \"data type\" is less than \"value\" (or \"value\"...)" << std::endl
 		<< "-------------------------------------------------------------------------" << std::endl << std::endl;
 }
 
@@ -88,10 +86,16 @@ void Request::SetText(const std::string& text)
 
 bool Request::IsCorrect()
 {
+	if (!m_phrases.size())
+	{
+		m_errorText = "no inputed text";
+		return false;
+	}
+
 	bool dataIsValid = true, quantityOfIsValid = true, allowComma = true;
 	bool thatIsValid = false, commaIsValid = false, valueIsValid = false;
-	bool conditionIsValid = false, andOrIsValid = false, isConditionPart = false;
-	bool isQuantityOf = false, bool allowQuantityOf = true;
+	bool conditionIsValid = false, andIsValid = false, orIsValid = false;
+	bool isQuantityOf = false, allowQuantityOf = true, isConditionPart = false;
 
 	for (auto i = m_phrases.begin(); i != m_phrases.end(); ++i)
 	{
@@ -108,12 +112,12 @@ bool Request::IsCorrect()
 				m_errorText = "after \"all\" is expected condition";
 				return false;
 			}
-			dataIsValid = quantityOfIsValid = allowComma = false;
+			dataIsValid = quantityOfIsValid = allowComma = allowQuantityOf = false;
 			thatIsValid = true; /// after can be only "that"
 			break;
 
 		case quantityOf:
-			if (!quantityOfIsValid)
+			if (!quantityOfIsValid || !allowQuantityOf)
 			{
 				m_errorText = "\"quantity of\" was used not correctly";
 				return false;
@@ -123,7 +127,7 @@ bool Request::IsCorrect()
 				m_errorText = "after \"quantity of\" is expected any data name";
 				return false;
 			}
-			quantityOfIsValid = allowComma = false; /// can not be the request like quantity of many data types
+			quantityOfIsValid = allowComma = allowQuantityOf = false; /// can not be the request like quantity of many data types
 			isQuantityOf = true;
 			break;
 
@@ -178,7 +182,7 @@ bool Request::IsCorrect()
 				m_errorText = "after comma is expected a data name";
 				return false;
 			}
-			thatIsValid = commaIsValid = false;
+			thatIsValid = commaIsValid = allowQuantityOf = false;
 			dataIsValid = true; ///  after can be only data
 			break;
 
@@ -194,7 +198,7 @@ bool Request::IsCorrect()
 				return false;
 			}
 			conditionIsValid = isQuantityOf = false;
-			andOrIsValid = true; ///  after can be only and/or
+			andIsValid = true; ///  after can be only and
 			break;
 
 		case is_isNot:
@@ -232,8 +236,8 @@ bool Request::IsCorrect()
 			valueIsValid = true; /// after can be only value
 			break;
 
-		case and_or:
-			if (!andOrIsValid)
+		case and_:
+			if (!andIsValid)
 			{
 				m_errorText = "\"" + i->word + "\" was used not correctly";
 				return false;
@@ -243,8 +247,23 @@ bool Request::IsCorrect()
 				m_errorText = "after \"" + i->word + "\" is expected a condition";
 				return false;
 			}
-			andOrIsValid = false;
+			andIsValid = orIsValid = false;
 			dataIsValid = quantityOfIsValid = true; /// after can be data or quantity of
+			break;
+
+		case or_:
+			if (!orIsValid)
+			{
+				m_errorText = "\"" + i->word + "\" was used not correctly";
+				return false;
+			}
+			if (i + 1 == m_phrases.end()) /// can not be the last word
+			{
+				m_errorText = "after \"" + i->word + "\" is expected a condition";
+				return false;
+			}
+			andIsValid = orIsValid = false;
+			valueIsValid = true; /// after can be only value
 			break;
 
 		case close:
@@ -262,7 +281,7 @@ bool Request::IsCorrect()
 				return false;
 			}
 			valueIsValid = isQuantityOf = false;
-			andOrIsValid = true; ///  after can be only and/or
+			andIsValid = orIsValid = true; ///  after can be only and/or
 
 			if (((i - 2)->word == "work e-mail" || (i - 2)->word == "home e-mail") && (i - 1)->type == is_isNot && !isEmail(i->word))
 			{
@@ -298,6 +317,75 @@ bool Request::Close() const
 std::string Request::ErrorText() const
 {
 	return m_errorText;
+}
+
+std::string Request::GetEncryptedText() const
+{
+	enum State
+	{
+		none,
+		positive,
+		negative
+	};
+
+	std::string encryptedRequest;
+	for (int i = 0; i < m_phrases.size(); ++i)
+	{
+		switch (m_phrases[i].type)
+		{
+		case all:
+			encryptedRequest += std::to_string(all) + ',' + std::to_string(none);
+			break;
+		case quantityOf:
+			encryptedRequest += std::to_string(quantityOf) + ',' + std::to_string(none);
+			break;
+		case close:
+			encryptedRequest += std::to_string(close) + ',' + std::to_string(none);
+			break;
+		case that:
+			encryptedRequest += std::to_string(that) + ',' + std::to_string(none);
+			break;
+		case comma:
+			encryptedRequest += std::to_string(comma) + ',' + std::to_string(none);
+			break;
+		case is_isNot:
+			encryptedRequest += std::to_string(is_isNot) + ',' + ((m_phrases[i].word == "is") ? std::to_string(positive) : std::to_string(negative));
+			break;
+		case isDefined_isUndefined:
+			encryptedRequest += std::to_string(isDefined_isUndefined) + ',' + ((m_phrases[i].word == "is defined") ? std::to_string(positive) : std::to_string(negative));
+			break;
+		case isMoreThan_isLessThan:
+			encryptedRequest += std::to_string(isMoreThan_isLessThan) + ',' + ((m_phrases[i].word == "is more than") ? std::to_string(positive) : std::to_string(negative));
+			break;
+		case and_:
+			encryptedRequest += std::to_string(and_) + ',' + std::to_string(none);
+			break;
+		case or_:
+			encryptedRequest += std::to_string(or_) + ',' + std::to_string(none);
+			break;
+		case data:
+			encryptedRequest += std::to_string(data) + ',';
+			int indicator;
+			indicator = 0;
+			for (auto it = m_dataSet.begin(); it != m_dataSet.end(); ++it, ++indicator)
+			{
+				if (m_phrases[i].word == *it)
+				{
+					encryptedRequest += std::to_string(indicator);
+					break;
+				}
+			}
+			break;
+		case value:
+			encryptedRequest += std::to_string(value) + ',' + m_phrases[i].word;
+			break;
+		}
+
+		if (i < m_phrases.size() - 1)
+			encryptedRequest += ',';
+	}
+
+	return std::move(encryptedRequest);
 }
 
 bool Request::isData(const std::string& word) const
@@ -390,8 +478,10 @@ void Request::getPhrases(const std::vector<std::string>& tempArray)
 			m_phrases.push_back(TypedWord(*i, that));
 		else if (*i == "close")
 			m_phrases.push_back(TypedWord(*i, close));
-		else if (*i == "and" || *i == "or")
-			m_phrases.push_back(TypedWord(*i, and_or));
+		else if (*i == "and")
+			m_phrases.push_back(TypedWord(*i, and_));
+		else if (*i == "or")
+			m_phrases.push_back(TypedWord(*i, or_));
 		else if (*i == ",")
 			m_phrases.push_back(TypedWord(*i, comma));
 		else if (*i == "is")
@@ -413,23 +503,25 @@ void Request::getPhrases(const std::vector<std::string>& tempArray)
 			m_phrases.back().word += ' ' + *i;
 			m_phrases.back().type = isMoreThan_isLessThan;
 		}
-		else if (*i == "quantity")
-			m_phrases.push_back(TypedWord(*i, value));
 		else if (*i == "of" && !m_phrases.empty() && m_phrases.back().word == "quantity")
 		{
 			m_phrases.back().word += ' ' + *i;
 			m_phrases.back().type = quantityOf;
 		}
-		else if (isData(*i))
-			m_phrases.push_back(TypedWord(*i, data));
-		else if (!m_phrases.empty() && m_phrases.back().type == value)
+		else if (!m_phrases.empty() && (m_phrases.back().type == value || m_phrases.back().type == data))
 		{
 			m_phrases.back().word += ' ' + *i;
 			if (isData(m_phrases.back().word))
 				m_phrases.back().type = data;
+			else
+				m_phrases.back().type = value;
 		}
 		else
+		{
 			m_phrases.push_back(TypedWord(*i, value));
+			if (isData(*i))
+				m_phrases.back().type = data;
+		}
 	}
 }
 

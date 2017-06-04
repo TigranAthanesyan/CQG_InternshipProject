@@ -76,8 +76,8 @@ namespace Tester
 		switch (nextType)
 		{
 		case all:   /// True types: all, quantityOf, close, data
-			m_bitSet[all] = m_bitSet[quantityOf] = m_bitSet[close] = m_bitSet[data] = false;
-			m_bitSet[that] = m_bitSet[end] = true;
+			m_bitSet[all] = m_bitSet[quantityOf] = m_bitSet[close] = m_bitSet[data] = m_allowQuantityOf = false;
+			m_bitSet[that] = true;
 			break;
 		case quantityOf:
 			if (m_isConditionPart)   /// True types: quantityOf, data
@@ -87,7 +87,7 @@ namespace Tester
 			}
 			else   /// True types: all, quantityOf, close, data
 			{
-				m_bitSet[all] = m_bitSet[quantityOf] = m_bitSet[close] = m_allowComma = false;
+				m_bitSet[all] = m_bitSet[quantityOf] = m_bitSet[close] = m_allowComma = m_allowQuantityOf = false;
 			}
 			break;
 		case close:  /// True types: all, quantityOf, close, data
@@ -115,34 +115,44 @@ namespace Tester
 			break;
 		case that:  /// True types: that, comma, end
 			m_bitSet[that] = m_bitSet[comma] = m_bitSet[end] = false;
-			m_bitSet[data] = m_bitSet[quantityOf] = m_isConditionPart = true;
+			m_bitSet[data] = m_isConditionPart = true;
+			if (m_allowQuantityOf)
+				m_bitSet[quantityOf] = true;
 			break;
 		case comma:    /// True types: comma, that, end
-			m_bitSet[comma] = m_bitSet[that] = m_bitSet[end] = false;
+			m_bitSet[comma] = m_bitSet[that] = m_bitSet[end] = m_allowQuantityOf = false;
 			m_bitSet[data] = true;
 			break;
 		case is_isNot:  /// True types: is_isNot, isDefined_isUndefined, isMoreThan_isLessThan
 			m_bitSet[is_isNot] = m_bitSet[isDefined_isUndefined] = m_bitSet[isMoreThan_isLessThan] = false;
-			m_bitSet[value] = true;
+			m_bitSet[value] = m_allowOr = true;
 			break;
 		case isDefined_isUndefined:   /// True types: is_isNot, isDefined_isUndefined
 			m_bitSet[is_isNot] = m_bitSet[isDefined_isUndefined] = false;
-			m_bitSet[and_or] = m_bitSet[end] = true;
+			m_bitSet[and_] = m_bitSet[end] = true;
 			break;
 		case isMoreThan_isLessThan:   /// True types: is_isNot, isMoreThan_isLessThan
-			m_bitSet[is_isNot] = m_bitSet[isMoreThan_isLessThan] = false;
+			m_bitSet[is_isNot] = m_bitSet[isMoreThan_isLessThan] = m_allowOr = false;
 			m_bitSet[value] = true;
 			break;
-		case and_or:   /// True types: and_or, end
-			m_bitSet[and_or] = m_bitSet[end] = false;
-			m_bitSet[data] = m_bitSet[quantityOf] = true;
+		case and_:   /// True types: and, or, end
+			m_bitSet[and_] = m_bitSet[or_] = m_bitSet[end] = false;
+			m_bitSet[data] = true;
+			if (m_allowQuantityOf)
+				m_bitSet[quantityOf] = true;
+			break;
+		case or_:   /// True types: and, or, end
+			m_bitSet[and_] = m_bitSet[or_] = m_bitSet[end] = false;
+			m_bitSet[value] = true;
 			break;
 		case value:   /// True types: value
 			m_bitSet[value] = false;
-			m_bitSet[and_or] = m_bitSet[end] = true;
+			m_bitSet[and_] = m_bitSet[end] = true;
+			if (m_allowOr)
+				m_bitSet[or_] = true;
 			break;
 		case end:  /// True types: that, comma, end, and_or
-			m_bitSet[that] = m_bitSet[comma] = m_bitSet[end] = m_bitSet[and_or] = false;
+			m_bitSet[that] = m_bitSet[comma] = m_bitSet[end] = m_bitSet[and_] = m_bitSet[or_] = false;
 			break;
 		}
 		resetIndexVector();
@@ -159,7 +169,7 @@ namespace Tester
 		}
 	}
 
-	std::string RequestGenerator::GenerateRequest()
+	std::string RequestGenerator::GenerateRequest(bool forExample)
 	{
 		std::string request;
 		WordType nextType = m_typeMaker.GetNextType(); /// Getting the next type
@@ -194,6 +204,8 @@ namespace Tester
 						nextValueType = phone;
 					else if (data == "home e-mail" || data == "work e-mail")
 						nextValueType = e_mail;
+					else
+						nextValueType = undefined;
 				}
 				break;
 			}
@@ -214,14 +226,20 @@ namespace Tester
 			case isMoreThan_isLessThan:
 				request += RandomNumber(0, 1) ? "is more than " : "is less than ";
 				break;
-			case and_or:
-				request += RandomNumber(0, 1) ? "and " : "or ";
+			case and_:
+				request += "and ";
+				break;
+			case or_:
+				request += "or ";
 				break;
 			case value:
 				switch (nextValueType)
 				{
 				case name:
-					request += generateWord(RandomNumber(2, 16), true) + ' ';
+					if (forExample)
+						request += "*** ";
+					else
+						request += generateWord(RandomNumber(2, 16), true) + ' ';
 					break;
 				case mr_mrs:
 					request += RandomNumber(0, 1) ? "mr " : "mrs ";
@@ -233,13 +251,18 @@ namespace Tester
 					request += generateNumber(1, 20) + ' ';
 					break;
 				case e_mail:
-					request += generateMail() + ' ';
+					if (forExample)
+						request += "***@***.com ";
+					else
+						request += generateMail() + ' ';
 					break;
 				case undefined:
-					request += generateWord(RandomNumber(4, 16)) + ' ';
+					if (forExample)
+						request += "*** ";
+					else
+						request += generateWord(RandomNumber(4, 16)) + ' ';
 					break;
 				}
-				nextValueType = undefined;
 				break;
 			}
 			nextType = m_typeMaker.GetNextType();

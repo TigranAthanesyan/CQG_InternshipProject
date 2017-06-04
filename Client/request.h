@@ -18,7 +18,7 @@
  * whose behavior needs to consider
  * to check the correctness of the received request
  */
-enum WordType 
+enum WordType
 {
 	all,                     /// Keyword "all"
 	quantityOf,              /// Keyword "quantity of"
@@ -28,14 +28,14 @@ enum WordType
 	is_isNot,                /// Keywords "is" and "is not"
 	isDefined_isUndefined,   /// Keywords "is defined" and "is undefined"
 	isMoreThan_isLessThan,   /// Keywords "is more than" and "is less than"
-	and,                     /// Keyword "and"
-	or,                      /// Keyword "or"
+	and_,                    /// Keyword "and"
+	or_,                     /// Keyword "or"
 	data,                    /// All data names
 	value                    /// All values of datas
 };
 
 /**
- * A simpule structure
+ * A simple structure
  * that contains a word or phrase
  * with the type of phrase
  */
@@ -52,7 +52,6 @@ struct TypedWord
  * turns it into a query
  * and checks the correctness of text
  */
-
 class Request
 {
 public:
@@ -62,9 +61,7 @@ public:
 	bool IsCorrect();                                        ///  Verifies the correctness of the text
 	bool Close() const;                                      ///  Checks the instruction for the end of the program
 	std::string ErrorText() const;                           ///  Gets error text
-	
-	std::vector<TypedWord> GetPhrasesVector() { return m_phrases; }
-	std::set<std::string> GetDataSet() { return m_dataSet; }
+	std::string GetEncryptedText() const;                    ///  Returns encrypted request for sending to the server
 
 	friend std::istream& operator >> (std::istream& input, Request& request)  ///  Receives text from the file stream
 	{
@@ -88,7 +85,6 @@ public:
 	}
 
 private:
-
 	/**
 	 * Functions isData, isNumber, isEmail, isPhoneNumber
 	 * to check if the input text is
