@@ -1,7 +1,5 @@
 /**
- * @file    db_connector.h
- * @author  Tigran Athanesyan
- * @version 1.1
+ * @file db_connector.h (incomplete)
  */
 #pragma once
 
@@ -10,6 +8,7 @@
 
 namespace cis /// Customer information storage
 {
+	/// Class to do
 	class IDBConnector
 	{
 	public:
