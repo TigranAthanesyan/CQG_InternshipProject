@@ -1,3 +1,8 @@
+/**
+ * @file     network.h
+ * @author   Tigran Athanesyan
+ * @version  1.3
+ */
 #pragma once
 
 #include <winsock2.h>

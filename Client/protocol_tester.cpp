@@ -61,7 +61,7 @@ namespace Tester
 		if (!m_indexVector.size())
 			return _end;
 
-		int nextIndex = RandomNumber(0, m_indexVector.size() - 1);
+		int nextIndex = RandomNumber(0, static_cast<int>(m_indexVector.size() - 1));
 		WordType nextType = static_cast<WordType>(m_indexVector[nextIndex]);
 
 		/// Before returning the type we need to change some settings about which type can be next
@@ -221,7 +221,7 @@ namespace Tester
 
 	std::string RequestGenerator::generateData() const
 	{
-		int dataIndex = RandomNumber(0, m_dataVector.size() - 1);
+		int dataIndex = RandomNumber(0, static_cast<int>(m_dataVector.size() - 1));
 		return m_dataVector[dataIndex];
 	}
 

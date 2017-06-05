@@ -1,7 +1,7 @@
 /**
 * @file    request.cpp
 * @author  Tigran Athanesyan
-* @version 1.2
+* @version 1.3
 */
 
 #include "request.h"
@@ -229,14 +229,6 @@ bool Request::IsCorrect()
 			valueIsValid = true; /// after can be only value
 			break;
 
-		case _close:
-			if (m_phrases.size() != 1) ///  can be only alone
-			{
-				m_errorText = "use of \"close\" is allowed only alone";
-				return false;
-			}
-			break;
-
 		case _value:
 			if (!valueIsValid)
 			{
@@ -262,11 +254,6 @@ bool Request::IsCorrect()
 	return true;
 }
 
-bool Request::Close() const
-{
-	return m_phrases.size() == 1 && m_phrases.back().type == _close;
-}
-
 std::string Request::ErrorText() const
 {
 	return m_errorText;
@@ -286,20 +273,10 @@ std::string Request::GetEncryptedText() const
 	{
 		switch (m_phrases[i].type)
 		{
-		case _all:
-			encryptedRequest += std::to_string(_all) + ',' + std::to_string(none);
-			break;
-		case _quantity:
-			encryptedRequest += std::to_string(_quantity) + ',' + std::to_string(none);
-			break;
-		case _close:
-			encryptedRequest += std::to_string(_close) + ',' + std::to_string(none);
-			break;
-		case _that:
-			encryptedRequest += std::to_string(_that) + ',' + std::to_string(none);
-			break;
-		case _comma:
-			encryptedRequest += std::to_string(_comma) + ',' + std::to_string(none);
+		case _all:  case _quantity:
+		case _that: case _comma:
+		case _and:  case _or:
+			encryptedRequest += std::to_string(m_phrases[i].type) + ',' + std::to_string(none);
 			break;
 		case _is_isNot:
 			encryptedRequest += std::to_string(_is_isNot) + ',' + 
@@ -308,12 +285,6 @@ std::string Request::GetEncryptedText() const
 		case _isDefined_isUndefined:
 			encryptedRequest += std::to_string(_isDefined_isUndefined) + ',' + 
 				((m_phrases[i].word == "is defined") ? std::to_string(positive) : std::to_string(negative));
-			break;
-		case _and:
-			encryptedRequest += std::to_string(_and) + ',' + std::to_string(none);
-			break;
-		case _or:
-			encryptedRequest += std::to_string(_or) + ',' + std::to_string(none);
 			break;
 		case _data:
 			encryptedRequest += std::to_string(_data) + ',';
@@ -343,16 +314,6 @@ std::string Request::GetEncryptedText() const
 bool Request::isData(const std::string& word) const
 {
 	return std::find(m_dataSet.begin(), m_dataSet.end(), word) != m_dataSet.end();
-}
-
-bool Request::isNumber(const std::string& word) const
-{
-	for (size_t i = 0; i < word.size(); ++i)
-	{
-		if (!isdigit(word[i]))
-			return false;
-	}
-	return true;
 }
 
 bool Request::isEmail(const std::string& word) const
@@ -430,8 +391,6 @@ void Request::getPhrases(const std::vector<std::string>& tempArray)
 			m_phrases.push_back(TypedWord(*i, _quantity));
 		else if (*i == "that")
 			m_phrases.push_back(TypedWord(*i, _that));
-		else if (*i == "close")
-			m_phrases.push_back(TypedWord(*i, _close));
 		else if (*i == "and")
 			m_phrases.push_back(TypedWord(*i, _and));
 		else if (*i == "or")

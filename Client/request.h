@@ -1,7 +1,7 @@
 /**
  * @file    request.h
  * @author  Tigran Athanesyan
- * @version 1.2
+ * @version 1.3
  */
 
 #include <string>
@@ -22,7 +22,6 @@ enum WordType
 {
 	_all,                     /// Keyword "all"
 	_quantity,                /// Keyword "quantity"
-	_close,                   /// Keyword "close"
 	_that,                    /// Keyword "that"
 	_comma,                   /// Keyword ","
 	_is_isNot,                /// Keywords "is" and "is not"
@@ -58,7 +57,6 @@ public:
 	void DataDescription(std::ostream& = std::cout) const;   ///  Prints the types of data
 	void SetText(const std::string&);                        ///  Takes the text and turns it into a query
 	bool IsCorrect();                                        ///  Verifies the correctness of the text
-	bool Close() const;                                      ///  Checks the instruction for the end of the program
 	std::string ErrorText() const;                           ///  Gets error text
 	std::string GetEncryptedText() const;                    ///  Returns encrypted request for sending to the server
 
@@ -85,12 +83,11 @@ public:
 
 private:
 	/**
-	 * Functions isData, isNumber, isEmail, isPhoneNumber
+	 * Functions isData, isEmail, isPhoneNumber
 	 * to check if the input text is
-	 * data name, correct number, correct e-mail address, correct phone number
+	 * data name, correct e-mail address, correct phone number
 	 */
 	bool isData(const std::string&) const;
-	bool isNumber(const std::string&) const;
 	bool isEmail(const std::string&) const;
 	bool isPhoneNumber(const std::string&) const;
 

@@ -146,10 +146,13 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="request.cpp" />
     <ClCompile Include="protocol_tester.cpp" />
+    <ClCompile Include="server_connector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="network.h" />
     <ClInclude Include="request.h" />
     <ClInclude Include="protocol_tester.h" />
+    <ClInclude Include="server_connector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

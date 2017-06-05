@@ -36,23 +36,3 @@ int main()
 		std::cout << "Connected clients: " << server.Size() << std::endl;
 	}
 }
-
-
-
-/*
-
-
-all THAT city is London
-quantity of city THAT
-
-return values    WHERE      conditions
-select count where (select * where City = Moscow, ...)
-
-std::string getSQLstring(std::vector<std::string> get, std::vector<std::string> cond, int )  , bool count, std::string countCond)
-{
-   if ( get.size() == 0 && count == false)
-   std::string SQLText = "select " + " * " + " where " + 
-}
-
-
-*/

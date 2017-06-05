@@ -10,18 +10,14 @@
 
 namespace cis /// Customer information storage
 {
-/// @brief
-class IDBConnector
-{
-public:
-	/// @brief
-	/// @param
-	/// @return
-	virtual void Connect() = 0;
+	class IDBConnector
+	{
+	public:
+		virtual void Connect() = 0;
 
-	virtual std::string SQLRequest(const std::string& sqlRequest) = 0;
-};
+		virtual std::string SQLRequest(const std::string& sqlRequest) = 0;
+	};
 
-using IDBConnectorPtr = std::unique_ptr<IDBConnector>;
+	using IDBConnectorPtr = std::unique_ptr<IDBConnector>;
 
 } // namespace
