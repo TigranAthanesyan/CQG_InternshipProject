@@ -1,8 +1,8 @@
-///
-/// @file    request.h
-/// @author  Tigran Athanesyan
-///
-
+/**
+ * @file    db_connector.h
+ * @author  Tigran Athanesyan
+ * @version 1.1
+ */
 #pragma once
 
 #include <string>

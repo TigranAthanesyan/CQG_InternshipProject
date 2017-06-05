@@ -1,3 +1,8 @@
+/**
+ * @file    client_connector.cpp
+ * @author  Tigran Athanesyan
+ * @version 1.1
+ */
 #include <functional>
 #include <sstream>
 #include <vector>
@@ -38,8 +43,11 @@ namespace cis
 		return std::move(m_dataSet);
 	}
 
-	static std::set<std::string> dataSet = MakeDataSet();  ///  Container for storing all possible data types
+	/// Container for storing all possible data types
+	static std::set<std::string> dataSet = MakeDataSet();
 
+	/// Function that takes as argument an encrypted request string
+	/// and turns it into a vector of phrases
 	std::vector<TypedWord> Decrypt(const std::string& encryptedRequest)
 	{
 		enum State
@@ -111,20 +119,32 @@ namespace cis
 
 		return std::move(decryptedRequest);
 	}
+
+	/// Function for getting the objects that we need
+	/// for giving them to function GetSQLCode as parameters
 	void Parse(const std::string& i_encryptedRequest, std::vector<std::string>& o_getDataVector,
 		std::vector<Condition>& o_conditionVector, bool& o_retCount)
 	{
 		auto phrases = Decrypt(i_encryptedRequest);
 
+		/// If the first word of request is "quantity"
+		/// that meens that we want to get a count
+		/// and parameter retCount must be true
 		o_retCount = phrases[0].type == _quantity;
 
+		/// If requested all of quantity
+		/// index [2] shows the first data name in condition part
 		int i = 2;
+		
+		/// If requested data names 
+		/// we need to put them into getDataVector
 		if (phrases[0].type == _data)
 		{
 			for (i = 0; i && phrases[i - 1].type != _that; i += 2)
 				o_getDataVector.push_back(phrases[i].word);
 		}
 
+		/// Index i shows the first data name in condition
 		while (true)
 		{
 			std::string dataName = phrases[i].word;
@@ -208,25 +228,37 @@ namespace cis
 	{
 		while (true)
 		{
+			/// Receiving the encrypted request
 			char buffer[512];
 			int retVal = recv(i_socket, buffer, 512, NULL);
 			if (retVal <= 0 || retVal > 512)
 				break;
 
+			/// Making objects for giving them to function Parse as parameters
 			std::string encryptedRequest = std::string(buffer);
 			std::vector<std::string> getDataVector;
 			std::vector<Condition> conditionVector;
 			bool retCount;
 			Parse(encryptedRequest, getDataVector, conditionVector, retCount);
 
+			/// Getting string of SQL query
 			std::string sqlCode = GetSQLCode(getDataVector, conditionVector, retCount);
+
+			/// Sending the query to data base with data base connector
+			/// and getting the answer in string
 			m_mutex.lock();
 			std::string answer = m_connectorPtr->SQLRequest(sqlCode);
 			m_mutex.unlock();
+
+			/// Sending the answer back to client
 			retVal = send(i_socket, (char*)answer.c_str(), static_cast<int>(answer.size() + 1), NULL);
 			if (retVal <= 0 || retVal > answer.size())
 				break;
 		}
+		
+		/// Client is disconnected
+		/// We need to close the socket with them
+		/// and erase his thread 
 		closesocket(i_socket);
 		m_threads.erase(i_socket);
 	}

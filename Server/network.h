@@ -1,3 +1,8 @@
+/**
+ * @file    network.h
+ * @author  Tigran Athanesyan
+ * @version 1.1
+ */
 #pragma once
 
 #include <winsock2.h>
@@ -8,6 +13,8 @@
 
 namespace exc
 {
+	/// Class TCP_Exception
+	/// for designation the exceptions
 	class TCP_Exception : public std::logic_error
 	{
 	public:
@@ -17,6 +24,9 @@ namespace exc
 
 namespace wsa
 {
+	/// Class WSAInitializer
+	/// for setting the base settings
+	/// of networking process automatically
 	class WSAInitializer
 	{
 	public:
