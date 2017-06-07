@@ -113,7 +113,7 @@ namespace cis
 				break;
 			}
 
-			if (!(iss >> dummy))
+			if (type != _value && !(iss >> dummy))
 				break;
 		}
 
@@ -135,12 +135,12 @@ namespace cis
 		/// If requested all of quantity
 		/// index [2] shows the first data name in condition part
 		int i = 2;
-		
+
 		/// If requested data names 
 		/// we need to put them into getDataVector
 		if (phrases[0].type == _data)
 		{
-			for (i = 0; i && phrases[i - 1].type != _that; i += 2)
+			for (i = 0; !i || phrases[i - 1].type != _that; i += 2)
 				o_getDataVector.push_back(phrases[i].word);
 		}
 
@@ -161,13 +161,22 @@ namespace cis
 				value = "null";
 			}
 			Conjunction conjunction;
-			if (++i = static_cast<int>(phrases.size()))
+			if (++i == static_cast<int>(phrases.size()))
 				conjunction = end_;
 			else
 				conjunction = phrases[i].type == _and ? and_ : or_;
 
 			o_conditionVector.push_back(Condition(dataName, operation, value, conjunction));
 
+			while (conjunction == or_)
+			{
+				value = phrases[++i].word;
+				if (++i == static_cast<int>(phrases.size()))
+					conjunction = end_;
+				else
+					conjunction = phrases[i].type == _and ? and_ : or_;
+				o_conditionVector.push_back(Condition(dataName, operation, value, conjunction));
+			}
 			if (conjunction == end_)
 				break;
 			++i;

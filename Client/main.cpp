@@ -1,4 +1,4 @@
-#include "request.h"
+/*#include "request.h"
 #include "protocol_tester.h"
 #include "server_connector.h"
 
@@ -65,4 +65,4 @@ int main()
 		client.Receive(512);
 		std::cout << client.Message() << std::endl;
 	}
-}
+}*/

@@ -147,6 +147,7 @@
     <ClCompile Include="request.cpp" />
     <ClCompile Include="protocol_tester.cpp" />
     <ClCompile Include="server_connector.cpp" />
+    <ClCompile Include="tempMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="network.h" />
