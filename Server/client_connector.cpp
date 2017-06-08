@@ -256,12 +256,20 @@ namespace cis
 			/// Sending the query to data base with data base connector
 			/// and getting the answer in string
 			m_mutex.lock();
-			std::string answer = m_connectorPtr->SQLRequest(sqlCode);
+			auto answer = m_connectorPtr->SQLRequest(sqlCode);
 			m_mutex.unlock();
 
+			std::string sendText = "";
+			for (int i = 0; i < answer.size(); ++i)
+			{
+				if (i)
+					sendText += "\n\n";
+				sendText += answer[i];
+			}
+			
 			/// Sending the answer back to client
-			retVal = send(i_socket, (char*)answer.c_str(), static_cast<int>(answer.size() + 1), NULL);
-			if (retVal <= 0 || retVal > answer.size())
+			retVal = send(i_socket, (char*)sendText.c_str(), static_cast<int>(sendText.size() + 1), NULL);
+			if (retVal <= 0 || retVal > sendText.size() + 1)
 				break;
 		}
 		

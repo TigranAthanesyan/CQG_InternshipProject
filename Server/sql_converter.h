@@ -28,7 +28,7 @@ std::string GetSQLCode(const std::vector<std::string>& getDataVector, const std:
 {
 	std::string sqlQuery = "select ";
 	if (retCount)
-		sqlQuery += "count ";
+		sqlQuery += "count (*) ";
 	else
 	{
 		if (!getDataVector.size())

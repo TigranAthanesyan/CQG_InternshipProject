@@ -49,6 +49,7 @@ namespace cis
 	{
 		using threadMap = std::map<SOCKET, std::unique_ptr<std::thread>>;
 	public:
+		ClientConnector() : m_connectorPtr(new DBConnector("A7INTERN3")) {}
 		~ClientConnector();
 		void Initialize(short, int = 1);         /// Initializes contact socket
 		bool Accept() noexcept;                  /// Accepts with client and add an element in thread map with socket function

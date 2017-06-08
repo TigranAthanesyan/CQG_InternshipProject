@@ -21,6 +21,9 @@
     <ClCompile Include="client_connector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="db_connector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client_connector.h">
