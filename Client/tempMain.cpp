@@ -1,4 +1,4 @@
-#include "request.h"
+/*#include "request.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -260,4 +260,4 @@ int main()
 		std::cout << "SQL query: " << sqlCode << std::endl;
 		std::cin >> request;
 	}
-}
+}*/

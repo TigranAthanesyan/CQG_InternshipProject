@@ -4,8 +4,9 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <iostream>
 
-const std::string tableName = "Table Name";
+const std::string tableName = "dbo.Test";
 
 enum Operation {equal_, notEqual_, is_, isNot_};
 enum Conjunction {and_, or_, end_};
@@ -41,7 +42,7 @@ std::string GetSQLCode(const std::vector<std::string>& getDataVector, const std:
 				sqlQuery += "\"" + getDataVector[i] + "\" ";
 			}
 	}
-	sqlQuery += "from \"" + tableName + "\" where ";
+	sqlQuery += "from " + tableName + " where ";
 	bool bracketIsOpen = false;
 	for (int i = 0; i < conditionVector.size(); ++i)
 	{
@@ -50,23 +51,23 @@ std::string GetSQLCode(const std::vector<std::string>& getDataVector, const std:
 			sqlQuery += "(";
 			bracketIsOpen = true;
 		}
-		sqlQuery += "\"" + conditionVector[i].dataName + "\" ";
+		sqlQuery += conditionVector[i].dataName;
 		switch (conditionVector[i].operation)
 		{
 		case equal_:
-			sqlQuery += "= ";
+			sqlQuery += " = ";
 			break;
 		case notEqual_:
-			sqlQuery += "!= ";
+			sqlQuery += " != ";
 			break;
 		case is_:
-			sqlQuery += "is ";
+			sqlQuery += " is ";
 			break;
 		case isNot_:
-			sqlQuery += "is not ";
+			sqlQuery += " is not ";
 			break;
 		}
-		sqlQuery += (conditionVector[i].value == "null" ? "null " : "\"" + conditionVector[i].value + "\" ");
+		sqlQuery += (conditionVector[i].value == "null" ? "null " : "\'" + conditionVector[i].value + "\' ");
 		if (conditionVector[i].conjunction != or_ && bracketIsOpen)
 		{
 			sqlQuery += ") ";
@@ -77,5 +78,6 @@ std::string GetSQLCode(const std::vector<std::string>& getDataVector, const std:
 			sqlQuery += (conditionVector[i].conjunction == and_ ? "and " : "or ");
 		}
 	}
+	std::cout << sqlQuery << std::endl;
 	return sqlQuery;
 }

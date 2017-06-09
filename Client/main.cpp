@@ -1,4 +1,4 @@
-/*#include "request.h"
+#include "request.h"
 #include "protocol_tester.h"
 #include "server_connector.h"
 
@@ -61,8 +61,12 @@ int main()
 			continue;
 		}
 		std::string encryptedRequest = request.GetEncryptedText();
-		client.Send(encryptedRequest);
-		client.Receive(512);
+		
+		if (!client.Send(encryptedRequest) || client.Receive(512))
+		{
+			std::cout << "Error: No server..\n";
+			break;
+		}
 		std::cout << client.Message() << std::endl;
 	}
-}*/
+}
