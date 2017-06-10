@@ -4,9 +4,8 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <iostream>
 
-const std::string tableName = "dbo.Test";
+const std::string tableName = "dbo.AllData";
 
 enum Operation {equal_, notEqual_, is_, isNot_};
 enum Conjunction {and_, or_, end_};
@@ -22,6 +21,34 @@ struct Condition
 	std::string value;
 	Conjunction conjunction;
 };
+
+std::string GetFieldName(const std::string& data)
+{
+
+	std::string retValue;
+	char symbol;
+	bool isFirstSymbol = true;
+	for (int i = 0; i < data.size(); ++i)
+	{
+		if (isalpha(data[i]))
+		{
+			char c = data[i];
+			if (isFirstSymbol)
+			{
+				toupper(c);
+				isFirstSymbol = false;
+			}
+			retValue += c;
+		}
+		else
+		{
+			isFirstSymbol = true;
+		}
+	}
+	
+	return retValue;
+}
+
 
 /// Function that generates SQL Query
 /// Does not take into account joins
@@ -39,7 +66,7 @@ std::string GetSQLCode(const std::vector<std::string>& getDataVector, const std:
 			{
 				if (i)
 					sqlQuery += ", ";
-				sqlQuery += "\"" + getDataVector[i] + "\" ";
+				sqlQuery += "\"" + GetFieldName(getDataVector[i]) + "\" ";
 			}
 	}
 	sqlQuery += "from " + tableName + " where ";
@@ -51,7 +78,7 @@ std::string GetSQLCode(const std::vector<std::string>& getDataVector, const std:
 			sqlQuery += "(";
 			bracketIsOpen = true;
 		}
-		sqlQuery += conditionVector[i].dataName;
+		sqlQuery += GetFieldName(conditionVector[i].dataName);
 		switch (conditionVector[i].operation)
 		{
 		case equal_:
@@ -78,6 +105,5 @@ std::string GetSQLCode(const std::vector<std::string>& getDataVector, const std:
 			sqlQuery += (conditionVector[i].conjunction == and_ ? "and " : "or ");
 		}
 	}
-	std::cout << sqlQuery << std::endl;
 	return sqlQuery;
 }

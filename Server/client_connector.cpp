@@ -211,6 +211,8 @@ namespace cis
 
 		listen(m_contactSocket, backLog);
 		m_isInitialized = true;
+		m_garbidgeCollector = std::make_unique<std::thread>(std::thread(std::bind(&ClientConnector::CleanMap, this)));
+
 	}
 
 	bool ClientConnector::Accept() noexcept
@@ -254,22 +256,35 @@ namespace cis
 			std::string sqlCode = GetSQLCode(getDataVector, conditionVector, retCount);
 
 			/// Sending the query to data base with data base connector
-			/// and getting the answer in string
+			/// and getting the answer in vector of strings
 			m_mutex.lock();
-			auto answer = m_connectorPtr->SQLRequest(sqlCode);
-			m_mutex.unlock();
+			auto answer = m_connectorPtr->SQLRequest(sqlCode, getDataVector.size() != 1);
+			m_mutex.unlock(); 
 
 			std::string sendText = "";
 			for (int i = 0; i < answer.size(); ++i)
 			{
+				/*retVal = send(i_socket, (char*)answer[i].c_str(), static_cast<int>(answer[i].size() + 1), NULL);
+				if (retVal != static_cast<int>(answer[i].size() + 1))
+					break;*/
+
 				if (i)
-					sendText += "\n\n";
+				{
+					sendText += "\n";
+					if (getDataVector.size() != 1)
+						sendText += "\n";
+				}
 				sendText += answer[i];
 			}
+			//const std::string endMessage = "END";
+			//retVal = send(i_socket, (char*)endMessage.c_str(), static_cast<int>(endMessage.size() + 1), NULL);
 			
 			/// Sending the answer back to client
 			retVal = send(i_socket, (char*)sendText.c_str(), static_cast<int>(sendText.size() + 1), NULL);
-			if (retVal <= 0 || retVal > sendText.size() + 1)
+			//if (retVal <= 0 || retVal > sendText.size() + 1)
+				//break;
+
+			if (retVal != static_cast<int>(sendText.size() + 1))
 				break;
 		}
 		
@@ -277,6 +292,18 @@ namespace cis
 		/// We need to close the socket with them
 		/// and erase his thread 
 		closesocket(i_socket);
-		m_threads.erase(i_socket);
+		m_finishedSockets.push(i_socket);
+	}
+	void ClientConnector::CleanMap() noexcept
+	{
+		while (true)
+		{
+			while (m_finishedSockets.size())
+			{
+				m_threads[m_finishedSockets.front()]->join();
+				m_threads.erase(m_finishedSockets.front());
+				m_finishedSockets.pop();
+			}
+		}
 	}
 }

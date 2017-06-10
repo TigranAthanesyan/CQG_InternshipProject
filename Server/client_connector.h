@@ -7,6 +7,7 @@
 #include "network.h"
 #include "db_connector.h"
 #include <map>
+#include <queue>
 #include <memory>
 #include <string>
 #include <mutex>
@@ -47,7 +48,10 @@ namespace cis
 	/// Works with many clients threadsafely
 	class ClientConnector
 	{
-		using threadMap = std::map<SOCKET, std::unique_ptr<std::thread>>;
+		using threadPtr = std::unique_ptr<std::thread>;
+		using threadMap = std::map<SOCKET, threadPtr>;
+		using socketQueue = std::queue<SOCKET>;
+		
 	public:
 		ClientConnector() : m_connectorPtr(new DBConnector("A7INTERN3")) {}
 		~ClientConnector();
@@ -55,10 +59,13 @@ namespace cis
 		bool Accept() noexcept;                  /// Accepts with client and add an element in thread map with socket function
 		size_t Size() const noexcept { return m_threads.size(); } /// Returns the client's quantity
 		void SocketFunction(SOCKET& i_socket);   /// Function for every client's thread
+		void CleanMap() noexcept;                /// Garbidge collector for map
 
 	private:
 		SOCKET          m_contactSocket;         /// Socket for contacting with clients
 		threadMap       m_threads;               /// Map that stores all client's sockets as key and thread with function SocketFunction for all of them
+		socketQueue     m_finishedSockets;       /// Container for storing all finished sockets
+		threadPtr       m_garbidgeCollector;     /// Thread for cleaning map
 		SOCKADDR_IN     m_sockAddr;              /// An object for binding contact socket
 		bool            m_isInitialized = false; /// Bool for initialize socket address once
 		IDBConnectorPtr m_connectorPtr;          /// An object for snding query to data base

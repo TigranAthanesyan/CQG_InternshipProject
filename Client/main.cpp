@@ -3,10 +3,10 @@
 #include "server_connector.h"
 
 #define PORT_NUMBER 20000
-#define B_1 127
-#define B_2 0
-#define B_3 0
-#define B_4 1
+#define B_1 172
+#define B_2 26
+#define B_3 98
+#define B_4 27
 
 int main()
 {
@@ -62,7 +62,7 @@ int main()
 		}
 		std::string encryptedRequest = request.GetEncryptedText();
 		
-		if (!client.Send(encryptedRequest) || client.Receive(512))
+		if (!client.Send(encryptedRequest) || !client.Receive(3000))
 		{
 			std::cout << "Error: No server..\n";
 			break;

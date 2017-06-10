@@ -1,6 +1,6 @@
 #include "db_connector.h"
 
-std::vector<std::string> cis::DBConnector::SQLRequest(const std::string & sqlRequest)
+std::vector<std::string> cis::DBConnector::SQLRequest(const std::string & sqlRequest, bool isManyFields)
 {
 	std::vector<std::string> retVector;
 	try
@@ -15,7 +15,10 @@ std::vector<std::string> cis::DBConnector::SQLRequest(const std::string & sqlReq
 			for (int i = 0; i < static_cast<int>(row.size()); ++i)
 			{
 				const soci::column_properties& prop = row.get_properties(i);
-				oss << prop.get_name() << ": ";
+
+				if (isManyFields)
+					oss << prop.get_name() << ": ";
+
 				if (row.get_indicator(i) == soci::i_null)
 				{
 					oss << "NULL" << std::endl;
