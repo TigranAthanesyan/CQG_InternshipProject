@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-const std::string tableName = "dbo.AllData";
+const std::string tableName = "InternshipProjectDB.dbo.Allfields";
 
 enum Operation {equal_, notEqual_, is_, isNot_};
 enum Conjunction {and_, or_, end_};

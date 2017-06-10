@@ -46,7 +46,7 @@ int main()
 	std::cout << "Here are some examples.." << std::endl << std::endl;
 	for (int i = 0; i < 5; ++i)
 		std::cout << requestGenerator.GenerateRequest() << std::endl;
-	std::cout << std::endl;
+	std::cout << std::endl << std::endl;
 
 	std::string text;
 	while (true)
@@ -67,6 +67,6 @@ int main()
 			std::cout << "Error: No server..\n";
 			break;
 		}
-		std::cout << client.Message() << std::endl;
+		std::cout << std::endl << client.Message() << std::endl;
 	}
 }

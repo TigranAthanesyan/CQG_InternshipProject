@@ -258,31 +258,21 @@ namespace cis
 			/// Sending the query to data base with data base connector
 			/// and getting the answer in vector of strings
 			m_mutex.lock();
-			auto answer = m_connectorPtr->SQLRequest(sqlCode, getDataVector.size() != 1);
+			auto answer = m_connectorPtr->SQLRequest(sqlCode, getDataVector.size() != 1 && !retCount);
 			m_mutex.unlock(); 
 
 			std::string sendText = "";
 			for (int i = 0; i < answer.size(); ++i)
 			{
-				/*retVal = send(i_socket, (char*)answer[i].c_str(), static_cast<int>(answer[i].size() + 1), NULL);
-				if (retVal != static_cast<int>(answer[i].size() + 1))
-					break;*/
-
-				if (i)
+				if (i && getDataVector.size() != 1 && !retCount)
 				{
 					sendText += "\n";
-					if (getDataVector.size() != 1)
-						sendText += "\n";
 				}
 				sendText += answer[i];
 			}
-			//const std::string endMessage = "END";
-			//retVal = send(i_socket, (char*)endMessage.c_str(), static_cast<int>(endMessage.size() + 1), NULL);
-			
+		
 			/// Sending the answer back to client
 			retVal = send(i_socket, (char*)sendText.c_str(), static_cast<int>(sendText.size() + 1), NULL);
-			//if (retVal <= 0 || retVal > sendText.size() + 1)
-				//break;
 
 			if (retVal != static_cast<int>(sendText.size() + 1))
 				break;

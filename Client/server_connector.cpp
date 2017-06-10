@@ -59,6 +59,7 @@ bool ServerConnector::Send(const std::string& data) noexcept
 	int retVal = send(*m_socket, (char*)data.c_str(), static_cast<int>(data.size() + 1), NULL);
 	return retVal == data.size() + 1;
 }
+
 bool ServerConnector::Receive(int size) noexcept
 {
 	if (!m_connected)
