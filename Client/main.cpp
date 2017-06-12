@@ -76,7 +76,6 @@ int main()
 		}
 		std::string encryptedRequest = request.GetEncryptedText();
 		
-		std::cout << "Sending, receiving\n";
 		if (!client.Send(encryptedRequest) || !client.Receive(6000))
 		{
 			std::cout << "Error: No server..\n";
