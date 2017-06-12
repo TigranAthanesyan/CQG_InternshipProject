@@ -77,7 +77,8 @@ bool ServerConnector::Receive(int size) noexcept
 
 char* ServerConnector::Message() const noexcept
 {
-	if (m_buffer)
+	std::string message = std::string(m_buffer);
+	if (message.size())
 		return m_buffer;
-	return (char*)"No received Message..";
+	return (char*)"There is no date..";
 }

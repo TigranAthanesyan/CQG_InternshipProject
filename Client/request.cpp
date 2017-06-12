@@ -302,6 +302,8 @@ bool Request::isEmail(const std::string& word) const
 		if (((*i) >= 'A' && *i <= 'Z') || *i == ' ')
 			return false;
 	}
+
+
 	return true;
 }
 

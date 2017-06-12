@@ -2,6 +2,8 @@
 #include "protocol_tester.h"
 #include "server_connector.h"
 #include <sstream>
+#include <thread>
+#include <chrono>
 
 #define PORT_NUMBER 20000
 #define B_1 172
@@ -62,10 +64,53 @@ int main()
 		std::cout << requestGenerator.GenerateRequest() << std::endl;
 	std::cout << std::endl << std::endl;
 
-	std::string text;
+	std::string text, user, temp;
+	int seconds = 0;
+	std::cout << "Choose the user" << std::endl
+		<< "Press 't' for testing" << std::endl
+		<< "Press 'u' for user mode" << std::endl;
+	do
+	{
+		std::getline(std::cin, user);
+		if (user == "t")
+		{
+			std::cout << "Set the interval in seconds between requests: ";
+			while (true)
+			{
+				std::cin >> temp;
+				bool isNumber = true;
+				for (int i = 0; i < temp.size(); ++i)
+				{
+					if (!isdigit(temp[i]))
+					{
+						isNumber = false;
+						break;
+					}
+				}
+				if (!isNumber)
+				{
+					std::cout << "Incorrect number, try again: ";
+				}
+				else
+				{
+					seconds = std::stoi(temp);
+					break;
+				}
+			}
+		}
+		if ((user != "t" && user != "u"))
+			std::cout << "Not correct symbol, try again.." << std::endl;
+	} while (user != "t" && user != "u");
+	
+
 	while (true)
 	{
-		getline(std::cin, text);
+		if (user == "u")
+			getline(std::cin, text);
+		else
+			text = requestGenerator.GenerateRequest(false);
+			
+		std::cout << text << std::endl;
 		if (text == "close")
 			break;
 		request.SetText(text);
@@ -82,6 +127,8 @@ int main()
 			break;
 		}
 		std::cout << std::endl << client.Message() << std::endl;
+		if (user == "t")
+			std::this_thread::sleep_for(std::chrono::seconds(seconds));
 	}
 }
 

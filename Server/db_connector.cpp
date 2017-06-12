@@ -1,3 +1,7 @@
+/**
+* @file    db_connector.cpp
+* @authors Anna Vardzelyan, Tigran Athanesyan
+*/
 #include "db_connector.h"
 
 std::vector<std::string> cis::DBConnector::SQLRequest(const std::string & sqlRequest, bool isManyFields)
