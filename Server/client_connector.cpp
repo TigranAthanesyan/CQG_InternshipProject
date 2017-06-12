@@ -237,6 +237,13 @@ namespace cis
 
 	void ClientConnector::SocketFunction(SOCKET& i_socket)
 	{
+		std::string dataString = "";
+		for (const auto& it : dataSet)
+		{
+			dataString += it + "#";
+		}
+		send(i_socket, (char*)dataString.c_str(), static_cast<int>(dataString.size() + 1), NULL);
+
 		while (true)
 		{
 			/// Receiving the encrypted request

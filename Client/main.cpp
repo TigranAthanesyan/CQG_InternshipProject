@@ -1,12 +1,15 @@
 #include "request.h"
 #include "protocol_tester.h"
 #include "server_connector.h"
+#include <sstream>
 
 #define PORT_NUMBER 20000
-#define B_1 172
-#define B_2 26
-#define B_3 98
-#define B_4 27
+#define B_1 127//172
+#define B_2 0//26
+#define B_3 0//98
+#define B_4 1//27
+
+void FillDataVector(const std::string&);
 
 int main()
 {
@@ -37,15 +40,27 @@ int main()
 		return -1;
 	}
 
+	if (!client.Receive(1024))
+	{
+		std::cout << "Error: No data..\n";
+		return -1;
+	}
+	//std::string dataString = static_cast<std::string>(client.Message());
+	std::string dataString = std::string(client.Message());
+	std::cout << client.Message() << std::endl << std::endl;
+	FillDataVector(dataString);
+	for (const auto& it : DataVector)
+		std::cout << it << std::endl;
+
 	Request request;
 	request.Description();
 	request.DataDescription();
 
-	Tester::RequestGenerator requestGenerator;
+	/*Tester::RequestGenerator requestGenerator;
 
 	std::cout << "Here are some examples.." << std::endl << std::endl;
 	for (int i = 0; i < 5; ++i)
-		std::cout << requestGenerator.GenerateRequest() << std::endl;
+		std::cout << requestGenerator.GenerateRequest() << std::endl;*/
 	std::cout << std::endl << std::endl;
 
 	std::string text;
@@ -68,5 +83,15 @@ int main()
 			break;
 		}
 		std::cout << std::endl << client.Message() << std::endl;
+	}
+}
+
+void FillDataVector(const std::string& dataString)
+{
+	std::string tempStr;
+	std::istringstream iss(dataString);
+	while (std::getline(iss, tempStr, '#'))
+	{
+		DataVector.push_back(tempStr);
 	}
 }

@@ -5,7 +5,7 @@
 */
 
 #include "request.h"
-
+/*
 /// Function for initializing the data set
 std::set<std::string> MakeDataSet()
 {
@@ -36,6 +36,7 @@ std::set<std::string> MakeDataSet()
 	m_dataSet.insert("contact id");
 	return std::move(m_dataSet);
 }
+*/
 
 void Request::Description(std::ostream& output) const
 {
@@ -61,7 +62,7 @@ void Request::DataDescription(std::ostream& output) const
 	output << "    Data types.." << std::endl << std::endl
 		<< "-------------------------------------------------------------------------" << std::endl;
 	unsigned count = 1;
-	for (auto i = m_dataSet.begin(); i != m_dataSet.end(); ++i, ++count)
+	for (auto i = DataVector.begin(); i != DataVector.end(); ++i, ++count)
 	{
 		output << '\t' << *i;
 		if (i->size() < 8)
@@ -290,7 +291,7 @@ std::string Request::GetEncryptedText() const
 			encryptedRequest += std::to_string(_data) + ',';
 			int indicator;
 			indicator = 0;
-			for (auto it = m_dataSet.begin(); it != m_dataSet.end(); ++it, ++indicator)
+			for (auto it = DataVector.begin(); it != DataVector.end(); ++it, ++indicator)
 			{
 				if (m_phrases[i].word == *it)
 				{
@@ -313,7 +314,7 @@ std::string Request::GetEncryptedText() const
 
 bool Request::isData(const std::string& word) const
 {
-	return std::find(m_dataSet.begin(), m_dataSet.end(), word) != m_dataSet.end();
+	return std::find(DataVector.begin(), DataVector.end(), word) != DataVector.end();
 }
 
 bool Request::isEmail(const std::string& word) const
@@ -434,4 +435,4 @@ size_t Request::maximumSize() const
 	return maxSize;
 }
 
-std::set<std::string> Request::m_dataSet = MakeDataSet();
+//std::set<std::string> Request::m_dataSet = MakeDataSet();

@@ -1,10 +1,12 @@
 /**
- * @file sql_converter.h (incomplete)
+ * @file   sql_converter.h
+ * @author Tigran Athanesyan
  */
 #pragma once
 #include <vector>
 #include <string>
 
+/// The name of view table in db that contains all data fields joined
 const std::string tableName = "InternshipProjectDB.dbo.Allfields";
 
 enum Operation {equal_, notEqual_, is_, isNot_};
@@ -22,9 +24,9 @@ struct Condition
 	Conjunction conjunction;
 };
 
+/// Function for getting field name in db
 std::string GetFieldName(const std::string& data)
 {
-
 	std::string retValue;
 	char symbol;
 	bool isFirstSymbol = true;
@@ -49,9 +51,7 @@ std::string GetFieldName(const std::string& data)
 	return retValue;
 }
 
-
 /// Function that generates SQL Query
-/// Does not take into account joins
 std::string GetSQLCode(const std::vector<std::string>& getDataVector, const std::vector<Condition>& conditionVector, bool retCount)
 {
 	std::string sqlQuery = "select ";
@@ -102,7 +102,7 @@ std::string GetSQLCode(const std::vector<std::string>& getDataVector, const std:
 		}
 		if (conditionVector[i].conjunction != end_)
 		{
-			sqlQuery += (conditionVector[i].conjunction == and_ ? "and " : "or ");
+			sqlQuery += (conditionVector[i].conjunction == or_ && conditionVector[i].operation != notEqual_ ? "or " : "and ");
 		}
 	}
 	return sqlQuery;

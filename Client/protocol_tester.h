@@ -4,10 +4,8 @@
  * @version  1.3
  */
 
-#include <string>
+#include "data.h"
 #include <iostream>
-#include <set>
-#include <vector>
 #include <iterator>
 #include <algorithm>
 #include <bitset>
@@ -125,7 +123,7 @@ namespace Tester
 		std::string generateMail() const;
 		std::string generateWord(const size_t, const bool = false) const;
 
-		static std::vector<std::string> m_dataVector; /// Container for storing all possible data types
+		//static std::vector<std::string> m_dataVector; /// Container for storing all possible data types
 
 		ValidWordTypeMaker m_typeMaker;               /// Helper class object for getting valid word types
 	};

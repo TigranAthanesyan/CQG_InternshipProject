@@ -19,7 +19,7 @@ namespace Tester
 		return range(randomNumber);
 	}
 
-	/// Function for initializing the data vector
+/*	/// Function for initializing the data vector
 	std::vector<std::string> MakeDataVector()
 	{
 		std::vector<std::string> dataVector;
@@ -48,7 +48,7 @@ namespace Tester
 		dataVector.push_back("job title");
 		dataVector.push_back("contact id");
 		return dataVector;
-	}
+	}*/
 
 	ValidWordTypeMaker::ValidWordTypeMaker()
 		: m_bitSet(std::bitset<TYPE_SIZE>(7)) /// 7 - 00000000111
@@ -221,8 +221,8 @@ namespace Tester
 
 	std::string RequestGenerator::generateData() const
 	{
-		int dataIndex = RandomNumber(0, static_cast<int>(m_dataVector.size() - 1));
-		return m_dataVector[dataIndex];
+		int dataIndex = RandomNumber(0, static_cast<int>(DataVector.size() - 1));
+		return DataVector[dataIndex];
 	}
 
 	std::string RequestGenerator::generatePhoneNumber(const unsigned numberQuantity) const
@@ -256,6 +256,6 @@ namespace Tester
 		return word;
 	}
 
-	std::vector<std::string> RequestGenerator::m_dataVector = MakeDataVector();
+	//std::vector<std::string> RequestGenerator::m_dataVector = MakeDataVector();
 
 }

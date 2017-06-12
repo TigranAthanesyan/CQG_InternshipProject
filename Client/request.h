@@ -4,10 +4,8 @@
  * @version 1.3
  */
 
-#include <string>
+#include "data.h"
 #include <iostream>
-#include <set>
-#include <vector>
 #include <iterator>
 #include <algorithm>
 
@@ -112,7 +110,7 @@ private:
 	 */
 	size_t maximumSize() const;
 
-	static std::set<std::string> m_dataSet;  ///  Container for storing all possible data types
+	//static std::set<std::string> m_dataSet;  ///  Container for storing all possible data types
 
 	std::vector<TypedWord> m_phrases;        ///  Container for storing the request with phrases
 	std::string m_errorText;                 ///  String for printing error messages if there are
