@@ -277,10 +277,9 @@ namespace cis
 				}
 				sendText += answer[i];
 			}
-		
+
 			/// Sending the answer back to client
 			retVal = send(i_socket, (char*)sendText.c_str(), static_cast<int>(sendText.size() + 1), NULL);
-
 			if (retVal != static_cast<int>(sendText.size() + 1))
 				break;
 		}

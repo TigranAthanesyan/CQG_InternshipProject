@@ -2,8 +2,8 @@
 * @file db_connector.h (incomplete)
 */
 #pragma once
-//#include "soci.h"
-//#include "soci-odbc.h"
+#include "soci.h"
+#include "soci-odbc.h"
 #include <vector>
 #include <string>
 #include <memory>
@@ -29,10 +29,7 @@ namespace cis /// Customer information storage
 	{
 	public:
 		DBConnector(std::string i_DSN) { m_DSN = i_DSN; }
-		std::vector<std::string> SQLRequest(const std::string& sqlRequest, bool isManyFields)
-		{
-			return std::vector<std::string>();
-		}
+		std::vector<std::string> SQLRequest(const std::string& sqlRequest, bool isManyFields);
 	};
 
 } // namespace

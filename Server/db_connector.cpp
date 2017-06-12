@@ -1,4 +1,4 @@
-/*#include "db_connector.h"
+#include "db_connector.h"
 
 std::vector<std::string> cis::DBConnector::SQLRequest(const std::string & sqlRequest, bool isManyFields)
 {
@@ -68,4 +68,3 @@ std::vector<std::string> cis::DBConnector::SQLRequest(const std::string & sqlReq
 		return std::move(retVector);
 	}
 }
-*/

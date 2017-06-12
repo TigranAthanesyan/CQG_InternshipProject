@@ -5,38 +5,6 @@
 */
 
 #include "request.h"
-/*
-/// Function for initializing the data set
-std::set<std::string> MakeDataSet()
-{
-	std::set<std::string> m_dataSet;
-	m_dataSet.insert("last name");
-	m_dataSet.insert("first name");
-	m_dataSet.insert("mr. / mrs.");
-	m_dataSet.insert("acct. name");
-	m_dataSet.insert("phone");
-	m_dataSet.insert("home e-mail");
-	m_dataSet.insert("type");
-	m_dataSet.insert("industry segment");
-	m_dataSet.insert("work e-mail");
-	m_dataSet.insert("address");
-	m_dataSet.insert("city");
-	m_dataSet.insert("state");
-	m_dataSet.insert("postal code");
-	m_dataSet.insert("country");
-	m_dataSet.insert("last contacted date");
-	m_dataSet.insert("referral type");
-	m_dataSet.insert("referral detail");
-	m_dataSet.insert("sales rep.");
-	m_dataSet.insert("sales rep. login");
-	m_dataSet.insert("company office");
-	m_dataSet.insert("trs admin");
-	m_dataSet.insert("auth to trade");
-	m_dataSet.insert("job title");
-	m_dataSet.insert("contact id");
-	return std::move(m_dataSet);
-}
-*/
 
 void Request::Description(std::ostream& output) const
 {
@@ -62,7 +30,7 @@ void Request::DataDescription(std::ostream& output) const
 	output << "    Data types.." << std::endl << std::endl
 		<< "-------------------------------------------------------------------------" << std::endl;
 	unsigned count = 1;
-	for (auto i = DataVector.begin(); i != DataVector.end(); ++i, ++count)
+	for (auto i = m_dataVecPtr->begin(); i != m_dataVecPtr->end(); ++i, ++count)
 	{
 		output << '\t' << *i;
 		if (i->size() < 8)
@@ -291,7 +259,7 @@ std::string Request::GetEncryptedText() const
 			encryptedRequest += std::to_string(_data) + ',';
 			int indicator;
 			indicator = 0;
-			for (auto it = DataVector.begin(); it != DataVector.end(); ++it, ++indicator)
+			for (auto it = m_dataVecPtr->begin(); it != m_dataVecPtr->end(); ++it, ++indicator)
 			{
 				if (m_phrases[i].word == *it)
 				{
@@ -314,7 +282,7 @@ std::string Request::GetEncryptedText() const
 
 bool Request::isData(const std::string& word) const
 {
-	return std::find(DataVector.begin(), DataVector.end(), word) != DataVector.end();
+	return std::find(m_dataVecPtr->begin(), m_dataVecPtr->end(), word) != m_dataVecPtr->end();
 }
 
 bool Request::isEmail(const std::string& word) const

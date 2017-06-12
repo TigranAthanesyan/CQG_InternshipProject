@@ -4,11 +4,12 @@
  * @version  1.3
  */
 
-#include "data.h"
 #include <iostream>
 #include <iterator>
 #include <algorithm>
 #include <bitset>
+#include <vector>
+#include <string>
 
 #pragma once
 
@@ -103,7 +104,7 @@ namespace Tester
 	class RequestGenerator
 	{
 	public:
-
+		RequestGenerator(std::vector<std::string>* dataVecPtr) : m_dataVecPtr(dataVecPtr) {}
 		/**
 		 * Function GenerateRequest
 		 *
@@ -123,9 +124,8 @@ namespace Tester
 		std::string generateMail() const;
 		std::string generateWord(const size_t, const bool = false) const;
 
-		//static std::vector<std::string> m_dataVector; /// Container for storing all possible data types
-
-		ValidWordTypeMaker m_typeMaker;               /// Helper class object for getting valid word types
+		std::vector<std::string>* m_dataVecPtr;      /// Container for storing all possible data types
+		ValidWordTypeMaker m_typeMaker;              /// Helper class object for getting valid word types
 	};
 
 }

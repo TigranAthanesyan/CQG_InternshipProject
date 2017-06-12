@@ -19,37 +19,6 @@ namespace Tester
 		return range(randomNumber);
 	}
 
-/*	/// Function for initializing the data vector
-	std::vector<std::string> MakeDataVector()
-	{
-		std::vector<std::string> dataVector;
-		dataVector.push_back("last name");
-		dataVector.push_back("first name");
-		dataVector.push_back("mr. / mrs.");
-		dataVector.push_back("acct. name");
-		dataVector.push_back("phone");
-		dataVector.push_back("home e-mail");
-		dataVector.push_back("type");
-		dataVector.push_back("industry segment");
-		dataVector.push_back("work e-mail");
-		dataVector.push_back("address");
-		dataVector.push_back("city");
-		dataVector.push_back("state");
-		dataVector.push_back("postal code");
-		dataVector.push_back("country");
-		dataVector.push_back("last contacted date");
-		dataVector.push_back("referral type");
-		dataVector.push_back("referral detail");
-		dataVector.push_back("sales rep.");
-		dataVector.push_back("sales rep. login");
-		dataVector.push_back("company office");
-		dataVector.push_back("trs admin");
-		dataVector.push_back("auth to trade");
-		dataVector.push_back("job title");
-		dataVector.push_back("contact id");
-		return dataVector;
-	}*/
-
 	ValidWordTypeMaker::ValidWordTypeMaker()
 		: m_bitSet(std::bitset<TYPE_SIZE>(7)) /// 7 - 00000000111
 	{
@@ -221,8 +190,8 @@ namespace Tester
 
 	std::string RequestGenerator::generateData() const
 	{
-		int dataIndex = RandomNumber(0, static_cast<int>(DataVector.size() - 1));
-		return DataVector[dataIndex];
+		int dataIndex = RandomNumber(0, static_cast<int>(m_dataVecPtr->size() - 1));
+		return (*m_dataVecPtr)[dataIndex];
 	}
 
 	std::string RequestGenerator::generatePhoneNumber(const unsigned numberQuantity) const

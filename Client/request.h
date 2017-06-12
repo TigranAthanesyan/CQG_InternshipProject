@@ -4,10 +4,11 @@
  * @version 1.3
  */
 
-#include "data.h"
 #include <iostream>
 #include <iterator>
 #include <algorithm>
+#include <vector>
+#include <string>
 
 #pragma once
 
@@ -51,6 +52,7 @@ struct TypedWord
 class Request
 {
 public:
+	Request(std::vector<std::string>* dataVecPtr) : m_dataVecPtr(dataVecPtr) {}
 	void Description(std::ostream& = std::cout) const;       ///  Prints the rules of request protocol
 	void DataDescription(std::ostream& = std::cout) const;   ///  Prints the types of data
 	void SetText(const std::string&);                        ///  Takes the text and turns it into a query
@@ -110,8 +112,7 @@ private:
 	 */
 	size_t maximumSize() const;
 
-	//static std::set<std::string> m_dataSet;  ///  Container for storing all possible data types
-
+	std::vector<std::string>* m_dataVecPtr;  ///  Container for storing all possible data types
 	std::vector<TypedWord> m_phrases;        ///  Container for storing the request with phrases
 	std::string m_errorText;                 ///  String for printing error messages if there are
 };

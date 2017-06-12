@@ -150,7 +150,6 @@
     <ClCompile Include="tempMain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="data.h" />
     <ClInclude Include="network.h" />
     <ClInclude Include="request.h" />
     <ClInclude Include="protocol_tester.h" />
